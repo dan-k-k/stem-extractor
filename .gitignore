@@ -1,0 +1,27 @@
+# .gitignore in root directory
+# find . -maxdepth 2 -not -path '*/.*' # directory local
+
+**/.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# Python / ML
+ml_pipeline/.venv/
+ml_pipeline/__pycache__/
+ml_pipeline/data/
+ml_pipeline/outputs/
+ml_pipeline/musdb18hq/
+ml_pipeline/inference_output/
+*.pt
+*.onnx
+
+plugin/onnxruntime/lib/
+
+# C++ / JUCE
+plugin/build/
+*.dylib
+*.dll
+*.vst3
+*.component
+

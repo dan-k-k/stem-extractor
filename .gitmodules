@@ -1,0 +1,4 @@
+# .gitmodules in root directory
+[submodule "plugin/JUCE"]
+	path = plugin/JUCE
+	url = https://github.com/juce-framework/JUCE.git
