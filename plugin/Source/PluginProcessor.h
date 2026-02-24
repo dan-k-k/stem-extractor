@@ -3,11 +3,11 @@
 #include <JuceHeader.h>
 #include <onnxruntime_cxx_api.h>
 
-class SmartStemExtractorProcessor : public juce::AudioProcessor, public juce::Thread
+class StemExtractorProcessor : public juce::AudioProcessor, public juce::Thread
 {
 public:
-    SmartStemExtractorProcessor();
-    ~SmartStemExtractorProcessor() override;
+    StemExtractorProcessor();
+    ~StemExtractorProcessor() override;
 
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
@@ -18,7 +18,7 @@ public:
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override { return true; }
 
-    const juce::String getName() const override { return "Smart Stem Extractor"; }
+    const juce::String getName() const override { return "Stem Extractor"; }
     bool acceptsMidi() const override { return false; }
     bool producesMidi() const override { return false; }
     bool isMidiEffect() const override { return false; }
@@ -37,7 +37,7 @@ private:
     juce::AudioParameterFloat* gainParam;
     juce::AudioParameterChoice* stemParam;
 
-    Ort::Env onnxEnv{ORT_LOGGING_LEVEL_WARNING, "SmartStemExtractor"};
+    Ort::Env onnxEnv{ORT_LOGGING_LEVEL_WARNING, "StemExtractor"};
     std::unique_ptr<Ort::Session> onnxSession;
 
     static constexpr int fftOrder = 10; 
@@ -75,6 +75,6 @@ private:
     int threadWriteStartIdx = 0;
 
     void processFFTFrame();
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SmartStemExtractorProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StemExtractorProcessor)
 };
 

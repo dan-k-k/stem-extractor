@@ -2,7 +2,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-SmartStemExtractorProcessor::SmartStemExtractorProcessor()
+StemExtractorProcessor::StemExtractorProcessor()
      : AudioProcessor (BusesProperties().withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
                                         .withOutput ("Output", juce::AudioChannelSet::stereo(), true)),
        juce::Thread("ONNX_Inference_Thread"), 
@@ -17,7 +17,7 @@ SmartStemExtractorProcessor::SmartStemExtractorProcessor()
     stemParam = new juce::AudioParameterChoice ("stem", "Stem Selection", stemChoices, 0); // 0 defaults to Full Mix
     addParameter (stemParam);
 
-    std::string modelPath = "/Users/Shared/SmartStemExtractor/smart_stem_extractor.onnx";
+    std::string modelPath = "/Users/Shared/StemExtractor/stem_extractor.onnx";
 
     Ort::SessionOptions sessionOptions;
     sessionOptions.SetIntraOpNumThreads(1); 
@@ -31,12 +31,12 @@ SmartStemExtractorProcessor::SmartStemExtractorProcessor()
     }
 }
 
-SmartStemExtractorProcessor::~SmartStemExtractorProcessor() 
+StemExtractorProcessor::~StemExtractorProcessor() 
 {
     stopThread(2000); 
 }
 
-void SmartStemExtractorProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void StemExtractorProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     // REPORT LATENCY TO ABLETON
     int aiLatency = aiTimeFrames * hopSize;
@@ -70,9 +70,9 @@ void SmartStemExtractorProcessor::prepareToPlay (double sampleRate, int samplesP
     fftWorkspaceR.assign(fftSize * 2, 0.0f);
 }
 
-void SmartStemExtractorProcessor::releaseResources() {}
+void StemExtractorProcessor::releaseResources() {}
 
-void SmartStemExtractorProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+void StemExtractorProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals; 
     auto numInputChannels = getTotalNumInputChannels();
@@ -118,7 +118,7 @@ void SmartStemExtractorProcessor::processBlock (juce::AudioBuffer<float>& buffer
     }
 }
 
-void SmartStemExtractorProcessor::processFFTFrame()
+void StemExtractorProcessor::processFFTFrame()
 {
     for (int i = 0; i < fftSize; ++i) {
         int readIndex = (inputWriteIdx - fftSize + i + inputFifo.getNumSamples()) % inputFifo.getNumSamples();
@@ -166,7 +166,7 @@ void SmartStemExtractorProcessor::processFFTFrame()
 }
 
 // THE BACKGROUND THREAD
-void SmartStemExtractorProcessor::run()
+void StemExtractorProcessor::run()
 {
     Ort::MemoryInfo memoryInfo = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
     std::vector<int64_t> inputShape = {1, 2, 512, aiTimeFrames};
@@ -252,6 +252,6 @@ void SmartStemExtractorProcessor::run()
     }
 }
 
-juce::AudioProcessorEditor* SmartStemExtractorProcessor::createEditor() { return new SmartStemExtractorEditor (*this); }
-juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() { return new SmartStemExtractorProcessor(); }
+juce::AudioProcessorEditor* StemExtractorProcessor::createEditor() { return new StemExtractorEditor (*this); }
+juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() { return new StemExtractorProcessor(); }
 

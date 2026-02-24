@@ -2,7 +2,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-SmartStemExtractorEditor::SmartStemExtractorEditor (SmartStemExtractorProcessor& p)
+StemExtractorEditor::StemExtractorEditor (StemExtractorProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
     // Gain Knob
@@ -38,15 +38,15 @@ SmartStemExtractorEditor::SmartStemExtractorEditor (SmartStemExtractorProcessor&
     setSize (400, 300);
 }
 
-SmartStemExtractorEditor::~SmartStemExtractorEditor() {}
+StemExtractorEditor::~StemExtractorEditor() {}
 
-void SmartStemExtractorEditor::paint (juce::Graphics& g)
+void StemExtractorEditor::paint (juce::Graphics& g)
 {
     // dark grey background
     g.fillAll (juce::Colour::fromRGB (30, 30, 30));
 }
 
-void SmartStemExtractorEditor::resized()
+void StemExtractorEditor::resized()
 {
     int uiWidth = getWidth();
     int uiHeight = getHeight();

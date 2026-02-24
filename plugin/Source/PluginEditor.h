@@ -3,17 +3,17 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 
-class SmartStemExtractorEditor : public juce::AudioProcessorEditor
+class StemExtractorEditor : public juce::AudioProcessorEditor
 {
 public:
-    SmartStemExtractorEditor (SmartStemExtractorProcessor&);
-    ~SmartStemExtractorEditor() override;
+    StemExtractorEditor (StemExtractorProcessor&);
+    ~StemExtractorEditor() override;
 
     void paint (juce::Graphics&) override;
     void resized() override;
 
 private:
-    SmartStemExtractorProcessor& audioProcessor;
+    StemExtractorProcessor& audioProcessor;
 
     juce::Slider gainSlider;
     juce::Label gainLabel;
@@ -23,6 +23,6 @@ private:
     juce::Label stemLabel;
     std::unique_ptr<juce::ComboBoxParameterAttachment> stemAttachment;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SmartStemExtractorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StemExtractorEditor)
 };
 
