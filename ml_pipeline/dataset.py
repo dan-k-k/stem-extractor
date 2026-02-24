@@ -7,28 +7,26 @@ import soundfile as sf
 from torch.utils.data import Dataset
 
 class MUSDB18Dataset(Dataset):
-    def __init__(self, root_dir, chunk_duration=3.0, sample_rate=44100):
+    def __init__(self, root_dir, split="train", chunk_duration=3.0, sample_rate=44100):
         """
-        root_dir: The path to your MUSDB18-HQ dataset folders (Train/Test)
-        chunk_duration: How many seconds of audio to grab per batch
+        root_dir: The path to your musdb18hq directory
+        split: 'train' or 'test'
         """
-        self.root_dir = root_dir
+        self.split_dir = os.path.join(root_dir, split)
         self.chunk_duration = chunk_duration
         self.sample_rate = sample_rate
         
-        # how many audio samples are in the 3-second chunks
         self.chunk_samples = int(chunk_duration * sample_rate)
 
-        # MUSDB18
-        self.song_folders = [os.path.join(root_dir, f) for f in os.listdir(root_dir) 
-                             if os.path.isdir(os.path.join(root_dir, f))]
+        # Look inside the specific split folder (train or test)
+        self.song_folders = [os.path.join(self.split_dir, f) for f in os.listdir(self.split_dir) 
+                             if os.path.isdir(os.path.join(self.split_dir, f))]
 
-        # exact filenames expect to find in each song folder
         self.stems = ['vocals', 'drums', 'bass', 'other']
 
     def __len__(self):
         # epoch is 1,000 random 3-second chunks
-        return 1000
+        return 5000
 
     def __getitem__(self, idx):
         # random song from the dataset

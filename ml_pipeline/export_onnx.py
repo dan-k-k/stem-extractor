@@ -6,13 +6,20 @@ from model import StemExtractorUNet
 def export_to_onnx():
     print("Initializing PyTorch Model...")
     model = StemExtractorUNet(num_stems=4)
-    weights_path = "unet_epoch_10.pt" 
     
-    if os.path.exists(weights_path):
-        print(f"Loading trained weights from {weights_path}...")
-        model.load_state_dict(torch.load(weights_path, map_location='cpu'))
+    weights_path = "unet_best.pt" 
+    
+    if not os.path.exists(weights_path):
+        raise FileNotFoundError(f"❌ CRITICAL ERROR: Trained weights '{weights_path}' not found! Run train.py first.")
+
+    print(f"Loading trained weights from {weights_path}...")
+    
+    checkpoint = torch.load(weights_path, map_location='cpu', weights_only=False)
+    
+    if 'model_state_dict' in checkpoint:
+        model.load_state_dict(checkpoint['model_state_dict'])
     else:
-        print(f"Warning: '{weights_path}' not found. Exporting UNTRAINED model.")
+        model.load_state_dict(checkpoint)
 
     model.eval()
     dummy_input = torch.randn(1, 2, 512, 128)
@@ -39,8 +46,10 @@ def export_to_onnx():
         dynamic_axes=dynamic_axes
     )
 
-    print(f"\nExport successful! The model is securely waiting at: '{onnx_filename}'")
+    print(f"\n✅ Export successful! The model is securely waiting at: '{onnx_filename}'")
 
 if __name__ == "__main__":
     export_to_onnx()
+
+
 
