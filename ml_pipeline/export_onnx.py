@@ -22,13 +22,9 @@ def export_to_onnx():
         'output_masks': {4: 'time_frames'}
     }
 
-    # --- NEW: Automate the macOS Shared Folder creation ---
     shared_dir = "/Users/Shared/SmartStemExtractor"
     os.makedirs(shared_dir, exist_ok=True) 
-    
     onnx_filename = os.path.join(shared_dir, "smart_stem_extractor.onnx")
-    # ------------------------------------------------------
-
     print(f"Exporting to {onnx_filename}...")
     
     torch.onnx.export(

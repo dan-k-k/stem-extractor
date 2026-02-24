@@ -3,7 +3,6 @@
 #include <JuceHeader.h>
 #include <onnxruntime_cxx_api.h>
 
-// 1. INHERIT FROM juce::Thread
 class SmartStemExtractorProcessor : public juce::AudioProcessor, public juce::Thread
 {
 public:
@@ -14,7 +13,6 @@ public:
     void releaseResources() override;
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
 
-    // We must override the run() function for our background thread
     void run() override;
 
     juce::AudioProcessorEditor* createEditor() override;
@@ -36,8 +34,8 @@ public:
     void setStateInformation (const void*, int) override {}
 
 private:
-    juce::AudioParameterFloat* gainParam; // <-- ADD THIS LINE
-    juce::AudioParameterChoice* stemParam; // <-- ADD THIS LINE
+    juce::AudioParameterFloat* gainParam;
+    juce::AudioParameterChoice* stemParam;
 
     Ort::Env onnxEnv{ORT_LOGGING_LEVEL_WARNING, "SmartStemExtractor"};
     std::unique_ptr<Ort::Session> onnxSession;
@@ -50,14 +48,13 @@ private:
     juce::dsp::FFT inverseFFT;
     juce::dsp::WindowingFunction<float> window;
 
-    // --- SEPARATED CIRCULAR BUFFERS ---
     juce::AudioBuffer<float> inputFifo;  
     juce::AudioBuffer<float> outputFifo; 
     int inputWriteIdx = 0;  // Tracks where we are writing incoming audio
     int outputReadIdx = 0;  // Tracks where Ableton is reading outgoing audio
     int hopCounter = 0; 
 
-    // --- AI TENSOR MEMORY ---
+    // AI TENSOR MEMORY
     std::vector<float> inputTensorData;
     std::vector<float> outputTensorData;
 
@@ -67,8 +64,7 @@ private:
     std::vector<float> complexHistoryL;
     std::vector<float> complexHistoryR;
     
-    // --- THREAD SAFE COPIES ---
-    // The background thread will use these so the audio thread can keep running
+    // THREAD SAFE COPIES
     std::vector<float> inputTensorDataCopy;
     std::vector<float> complexHistoryLCopy;
     std::vector<float> complexHistoryRCopy;

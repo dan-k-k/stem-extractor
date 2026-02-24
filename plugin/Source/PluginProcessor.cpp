@@ -10,16 +10,13 @@ SmartStemExtractorProcessor::SmartStemExtractorProcessor()
        inverseFFT (fftOrder),
        window (fftSize, juce::dsp::WindowingFunction<float>::hann)
 {
-    // --- ADD THESE TWO LINES ---
     gainParam = new juce::AudioParameterFloat ("gain", "Stem Gain", 0.0f, 2.0f, 1.0f);
     addParameter (gainParam);
 
     juce::StringArray stemChoices {"Full Mix", "Vocals", "Drums", "Bass", "Other"};
     stemParam = new juce::AudioParameterChoice ("stem", "Stem Selection", stemChoices, 0); // 0 defaults to Full Mix
     addParameter (stemParam);
-    // ---------------------------
 
-    // Update the path to look inside the new dedicated folder
     std::string modelPath = "/Users/Shared/SmartStemExtractor/smart_stem_extractor.onnx";
 
     Ort::SessionOptions sessionOptions;
@@ -36,7 +33,7 @@ SmartStemExtractorProcessor::SmartStemExtractorProcessor()
 
 SmartStemExtractorProcessor::~SmartStemExtractorProcessor() 
 {
-    stopThread(2000); // Safely kill the background thread when closing the plugin
+    stopThread(2000); 
 }
 
 void SmartStemExtractorProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
@@ -45,9 +42,7 @@ void SmartStemExtractorProcessor::prepareToPlay (double sampleRate, int samplesP
     int aiLatency = aiTimeFrames * hopSize;
     int computeBuffer = (int)(sampleRate * 2); 
     setLatencySamples (aiLatency + computeBuffer);
-    // --------------------------------------------------
 
-    // Give the output FIFO a massive 10-second buffer so it never wraps prematurely
     int tenSecondBuffer = sampleRate * 10.0;
     inputFifo.setSize (getTotalNumInputChannels(), fftSize * 2);
     outputFifo.setSize (getTotalNumOutputChannels(), tenSecondBuffer);
@@ -95,11 +90,11 @@ void SmartStemExtractorProcessor::processBlock (juce::AudioBuffer<float>& buffer
 
     for (int i = 0; i < numSamples; ++i)
     {
-        // 1. Push new audio into the Input FIFO
+        // Push audio into the Input FIFO
         inputFifo.setSample(0, inputWriteIdx, inL[i]);
         inputFifo.setSample(1, inputWriteIdx, inR[i]);
 
-        // 2. Pull audio from the Output FIFO (this will be silence until the AI finishes)
+        // Pull audio from the Output FIFO
         float aiL = outputFifo.getSample(0, outputReadIdx);
         float aiR = outputFifo.getSample(1, outputReadIdx);
 
@@ -110,7 +105,7 @@ void SmartStemExtractorProcessor::processBlock (juce::AudioBuffer<float>& buffer
         outputFifo.setSample(0, outputReadIdx, 0.0f);
         outputFifo.setSample(1, outputReadIdx, 0.0f);
 
-        // 4. Advance our separated pointers safely
+        // Advance separated pointers safely
         inputWriteIdx = (inputWriteIdx + 1) % inputFifo.getNumSamples();
         outputReadIdx = (outputReadIdx + 1) % outputFifo.getNumSamples();
 
@@ -126,7 +121,6 @@ void SmartStemExtractorProcessor::processBlock (juce::AudioBuffer<float>& buffer
 void SmartStemExtractorProcessor::processFFTFrame()
 {
     for (int i = 0; i < fftSize; ++i) {
-        // Read backwards from our current write index
         int readIndex = (inputWriteIdx - fftSize + i + inputFifo.getNumSamples()) % inputFifo.getNumSamples();
         fftWorkspaceL[i] = inputFifo.getSample(0, readIndex);
         fftWorkspaceR[i] = inputFifo.getSample(1, readIndex);
@@ -154,7 +148,6 @@ void SmartStemExtractorProcessor::processFFTFrame()
 
     frameCounter++;
 
-    // WHEN WE HAVE 512 FRAMES...
     if (frameCounter >= aiTimeFrames) 
     {
         frameCounter = 0; 
@@ -164,8 +157,7 @@ void SmartStemExtractorProcessor::processFFTFrame()
             complexHistoryLCopy = complexHistoryL;
             complexHistoryRCopy = complexHistoryR;
 
-            // FIX: Target exactly 0.5 seconds ahead, aligning perfectly with Ableton's latency
-            int computeBuffer = (int)(getSampleRate() * 2.0); // <-- CHANGE 0.5 to 2.0 HERE
+            int computeBuffer = (int)(getSampleRate() * 2.0); 
             threadWriteStartIdx = (outputReadIdx + computeBuffer) % outputFifo.getNumSamples();
 
             startThread();
@@ -173,7 +165,7 @@ void SmartStemExtractorProcessor::processFFTFrame()
     }
 }
 
-// --- THE BACKGROUND THREAD ---
+// THE BACKGROUND THREAD
 void SmartStemExtractorProcessor::run()
 {
     Ort::MemoryInfo memoryInfo = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
@@ -189,19 +181,15 @@ void SmartStemExtractorProcessor::run()
     const char* outputNames[] = {"output_masks"};
     
     try {
-        // --- ADD THESE LINES TO TIME THE AI ---
         auto startTime = juce::Time::getMillisecondCounterHiRes();
 
         onnxSession->Run(Ort::RunOptions{nullptr}, inputNames, &inputTensor, 1, outputNames, &outputTensor, 1);
         
         auto endTime = juce::Time::getMillisecondCounterHiRes();
         juce::Logger::writeToLog("⏱ AI Inference Took: " + juce::String(endTime - startTime) + " ms");
-        // --------------------------------------
 
-        // Target writing the reconstructed audio 0.5 seconds ahead of Ableton's CURRENT playhead
         int writeStartIdx = threadWriteStartIdx;
 
-        // Use thread-local workspaces so we don't accidentally touch the Audio thread's variables
         std::vector<float> threadWorkspaceL(fftSize * 2, 0.0f);
         std::vector<float> threadWorkspaceR(fftSize * 2, 0.0f);
 
@@ -211,13 +199,12 @@ void SmartStemExtractorProcessor::run()
             if (threadShouldExit()) return; 
             int offset = frame * fftSize * 2;
 
-            // 1. Apply AI Masks to the Positive Frequencies (Bins 0 to 511)
             for (int bin = 0; bin < 512; ++bin) {
                 float maskL = 0.0f;
                 float maskR = 0.0f;
 
                 if (selectedMode == 0) {
-                    // FULL MIX: Loop through all 4 stems and add them together
+                    // FULL MIX
                     for (int stem = 0; stem < 4; ++stem) {
                         int idxL = (stem * 2 * 512 * aiTimeFrames) + (0 * 512 * aiTimeFrames) + (bin * aiTimeFrames) + frame;
                         int idxR = (stem * 2 * 512 * aiTimeFrames) + (1 * 512 * aiTimeFrames) + (bin * aiTimeFrames) + frame;
@@ -225,8 +212,7 @@ void SmartStemExtractorProcessor::run()
                         maskR += outputTensorData[idxR];
                     }
                 } else {
-                    // ISOLATED STEM: Just grab the one the user selected
-                    // We subtract 1 because "Vocals" is selectedMode 1, but stem index 0
+                    // ISOLATED STEM
                     int stem = selectedMode - 1; 
                     int idxL = (stem * 2 * 512 * aiTimeFrames) + (0 * 512 * aiTimeFrames) + (bin * aiTimeFrames) + frame;
                     int idxR = (stem * 2 * 512 * aiTimeFrames) + (1 * 512 * aiTimeFrames) + (bin * aiTimeFrames) + frame;
@@ -234,43 +220,35 @@ void SmartStemExtractorProcessor::run()
                     maskR = outputTensorData[idxR];
                 }
 
-                // Apply the calculated mask to the audio history
                 threadWorkspaceL[bin * 2]     = complexHistoryLCopy[offset + (bin * 2)]     * maskL;
                 threadWorkspaceL[bin * 2 + 1] = complexHistoryLCopy[offset + (bin * 2) + 1] * maskL;
                 threadWorkspaceR[bin * 2]     = complexHistoryRCopy[offset + (bin * 2)]     * maskR;
                 threadWorkspaceR[bin * 2 + 1] = complexHistoryRCopy[offset + (bin * 2) + 1] * maskR;
             }
 
-            // 2. Zero out the center Nyquist bin (Bin 512)
             threadWorkspaceL[512 * 2] = 0.0f; threadWorkspaceL[512 * 2 + 1] = 0.0f;
             threadWorkspaceR[512 * 2] = 0.0f; threadWorkspaceR[512 * 2 + 1] = 0.0f;
 
-            // Notice: The Step 3 Mirroring loop is completely gone! 
-
-            // 4. Transform back to Audio
+            // back to Audio
             inverseFFT.performRealOnlyInverseTransform (threadWorkspaceL.data());
             inverseFFT.performRealOnlyInverseTransform (threadWorkspaceR.data());
 
-            // 5. Synthesis Window & Overlap Normalization
             window.multiplyWithWindowingTable (threadWorkspaceL.data(), fftSize);
             window.multiplyWithWindowingTable (threadWorkspaceR.data(), fftSize);
             
-            // The JUCE Factor of 4 * WOLA Window sum of 1.5 = 6.0
             float overlapNorm = 1.0f / 6.0f; 
             
-            // Grab the live parameter value from Ableton/UI
             float userGain = gainParam->get();
 
             for (int i = 0; i < fftSize; ++i) {
                 int writeIndex = (writeStartIdx + (frame * hopSize) + i) % outputFifo.getNumSamples();
                 
-                // Multiply by both the unity math normalizer AND the user's gain knob
                 outputFifo.addSample(0, writeIndex, threadWorkspaceL[i] * overlapNorm * userGain);
                 outputFifo.addSample(1, writeIndex, threadWorkspaceR[i] * overlapNorm * userGain);
             }
         }
     } catch (const Ort::Exception& e) {
-        juce::Logger::writeToLog("❌ Inference Error: " + juce::String(e.what()));
+        juce::Logger::writeToLog("Inference Error: " + juce::String(e.what()));
     }
 }
 

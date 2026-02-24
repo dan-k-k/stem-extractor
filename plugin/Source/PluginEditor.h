@@ -19,7 +19,6 @@ private:
     juce::Label gainLabel;
     std::unique_ptr<juce::SliderParameterAttachment> gainAttachment;
 
-    // --- ADD THESE THREE LINES ---
     juce::ComboBox stemDropdown;
     juce::Label stemLabel;
     std::unique_ptr<juce::ComboBoxParameterAttachment> stemAttachment;

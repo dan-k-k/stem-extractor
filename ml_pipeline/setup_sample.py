@@ -5,7 +5,6 @@ import soundfile as sf
 
 def setup_sample_song():
     print("Downloading official MUSDB18 7-second sample dataset...")
-    # The cache should already have this downloaded from your last attempt!
     mus = musdb.DB(download=True) 
 
     track = mus[0] 
@@ -15,7 +14,6 @@ def setup_sample_song():
     os.makedirs(out_dir, exist_ok=True)
 
     print("Converting and extracting stems to .wav...")
-    # musdb natively provides audio as numpy arrays. soundfile writes them perfectly.
     sf.write(os.path.join(out_dir, "mixture.wav"), track.audio, track.rate)
 
     for name, target in track.targets.items():

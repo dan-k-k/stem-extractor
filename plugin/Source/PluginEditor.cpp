@@ -5,7 +5,7 @@
 SmartStemExtractorEditor::SmartStemExtractorEditor (SmartStemExtractorProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
-    // 1. Gain Knob
+    // Gain Knob
     gainSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     gainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
     addAndMakeVisible(gainSlider);
@@ -15,8 +15,7 @@ SmartStemExtractorEditor::SmartStemExtractorEditor (SmartStemExtractorProcessor&
     gainLabel.attachToComponent(&gainSlider, false); 
     addAndMakeVisible(gainLabel);
 
-    // 2. Stem Dropdown Menu
-    // We start IDs at 1, which JUCE requires for ComboBoxes
+    // Stem Dropdown Menu
     stemDropdown.addItemList({"Full Mix", "Vocals", "Drums", "Bass", "Other"}, 1);
     addAndMakeVisible(stemDropdown);
 
@@ -25,8 +24,8 @@ SmartStemExtractorEditor::SmartStemExtractorEditor (SmartStemExtractorProcessor&
     stemLabel.attachToComponent(&stemDropdown, false);
     addAndMakeVisible(stemLabel);
 
-    // 3. Attach UI to Backend Parameters
-    const auto& parameters = audioProcessor.getParameters(); // <-- FIX IS HERE
+    // Attach UI to Backend Parameters
+    const auto& parameters = audioProcessor.getParameters(); 
     
     // Gain is at index 0
     if (auto* floatParam = dynamic_cast<juce::RangedAudioParameter*>(parameters[0]))
@@ -43,15 +42,12 @@ SmartStemExtractorEditor::~SmartStemExtractorEditor() {}
 
 void SmartStemExtractorEditor::paint (juce::Graphics& g)
 {
-    // A sleek dark grey background
+    // dark grey background
     g.fillAll (juce::Colour::fromRGB (30, 30, 30));
-    
-    // (We removed the "Hello Ableton" text so it doesn't overlap our new UI)
 }
 
 void SmartStemExtractorEditor::resized()
 {
-    // Layout: Dropdown on the left, Knob on the right
     int uiWidth = getWidth();
     int uiHeight = getHeight();
 
