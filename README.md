@@ -6,7 +6,7 @@ A real-time, AI-powered audio source separation plugin built with PyTorch, ONNX 
 
 <p align="center">
   <a href="https://youtu.be/NPQ3ksCOwvk">
-    <img src="images/DemoThumbnail.png" alt="Stem Extractor Demo" width="400">
+    <img src="images/DemoThumbnail1.png" alt="Stem Extractor Demo" width="400">
   </a>
 </p>
 
