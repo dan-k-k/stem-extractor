@@ -48,15 +48,14 @@ def train():
     data_dir = "./musdb18hq"
 
     print("Loading Datasets...")
-    try:
-        train_dataset = MUSDB18Dataset(root_dir=data_dir, split="train", chunk_duration=3.0)
-        val_dataset = MUSDB18Dataset(root_dir=data_dir, split="test", chunk_duration=3.0)
+    if not os.path.exists(data_dir):
+        raise FileNotFoundError(f"❌ CRITICAL ERROR: Dataset folder '{data_dir}' not found.")
         
-        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
-        val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
-    except FileNotFoundError:
-        print(f"Dataset folder '{data_dir}' not found. Please run setup_full_dataset.py first.")
-        return
+    train_dataset = MUSDB18Dataset(root_dir=data_dir, split="train", chunk_duration=3.0)
+    val_dataset = MUSDB18Dataset(root_dir=data_dir, split="test", chunk_duration=3.0)
+    
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
 
     model = StemExtractorUNet(num_stems=4).to(device)
     criterion = nn.L1Loss() 

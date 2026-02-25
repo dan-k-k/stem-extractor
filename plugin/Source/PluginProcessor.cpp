@@ -17,15 +17,23 @@ StemExtractorProcessor::StemExtractorProcessor()
     stemParam = new juce::AudioParameterChoice ("stem", "Stem Selection", stemChoices, 0); // 0 defaults to Full Mix
     addParameter (stemParam);
 
-    std::string modelPath = "/Users/Shared/StemExtractor/stem_extractor.onnx";
-
     Ort::SessionOptions sessionOptions;
     sessionOptions.SetIntraOpNumThreads(1); 
     sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL);
 
     try {
-        onnxSession = std::make_unique<Ort::Session>(onnxEnv, modelPath.c_str(), sessionOptions);
-        juce::Logger::writeToLog("✅ AI Model Loaded Successfully!");
+        // Check if the binary data was generated successfully
+        if (BinaryData::stem_extractor_onnxSize > 0) {
+            onnxSession = std::make_unique<Ort::Session>(
+                onnxEnv, 
+                BinaryData::stem_extractor_onnx, 
+                BinaryData::stem_extractor_onnxSize, 
+                sessionOptions
+            );
+            juce::Logger::writeToLog("✅ AI Model Loaded Successfully from BinaryData!");
+        } else {
+            juce::Logger::writeToLog("❌ Critical Error: ONNX Model not found in BinaryData.");
+        }
     } catch (const Ort::Exception& e) {
         juce::Logger::writeToLog("❌ ONNX Load Error: " + juce::String(e.what()));
     }

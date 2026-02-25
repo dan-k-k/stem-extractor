@@ -18,7 +18,8 @@ ml_pipeline/inference_output/
 ml_pipeline/training_log.csv
 ml_pipeline/plot_loss.py
 
-plugin/onnxruntime/lib/
+plugin/onnxruntime/lib/*
+!plugin/onnxruntime/lib/libonnxruntime.dylib
 
 # C++ / JUCE
 plugin/build/

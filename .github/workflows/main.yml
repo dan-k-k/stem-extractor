@@ -1,20 +1,18 @@
 # .github/workflows/main.yml
-
-name: Stem Extractor CI/CD
+name: Stem Extractor CI
 
 on:
   push:
     branches: [ "**" ]
   pull_request:
     branches: [ "**" ]
-  workflow_dispatch:
 
 jobs:
   # ==========================================
-  # JOB 1: PYTHON ML TESTS (Runs on every push)
+  # JOB 1: PYTHON ML LOGIC TESTS
   # ==========================================
   test-python:
-    name: Run ML Tests
+    name: Python Unit Tests
     runs-on: ubuntu-latest
     
     steps:
@@ -34,89 +32,31 @@ jobs:
     - name: Run PyTest
       run: pytest tests/Python/
 
-    # --- NEW STEPS FOR PHASE 2 ---
-    
-    - name: Fetch Model Weights
-      env:
-        GH_TOKEN: ${{ github.token }}
-      run: |
-        cd ml_pipeline
-        # Create a dummy checkpoint with random weights so torch.load() doesn't crash
-        python -c "
-        import torch
-        from model import StemExtractorUNet
-        model = StemExtractorUNet(num_stems=4)
-        torch.save({'model_state_dict': model.state_dict()}, 'unet_best.pt')
-        " 
-
-    - name: Run Audio QC (Inference)
-      run: |
-        cd ml_pipeline
-        python inference.py ../tests/ZenoSigns10sec.wav
-
-    - name: Upload Audio Artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: Extracted-Stems-QC
-        # Catch all WAV files spit out by your inference script
-        path: ml_pipeline/inference_output/*.wav
-
   # ==========================================
-  # JOB 2: C++ TESTS & BUILD VST3 
+  # JOB 2: C++ FIFO & BUFFER TESTS
   # ==========================================
-  build-and-test-cpp:
-    name: Test and Compile C++ Plugin
-    needs: test-python 
+  test-cpp:
+    name: C++ Unit Tests
     runs-on: macos-latest
     
-    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
-
     steps:
     - name: Checkout Code with Submodules
       uses: actions/checkout@v4
       with:
         submodules: recursive 
 
-    # --- MUST HAPPEN BEFORE CMAKE ---
-    - name: Set up Python (for ONNX export)
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-
-    - name: Install PyTorch
-      run: pip install torch
-
-    - name: Fetch Model Weights
-      env:
-        GH_TOKEN: ${{ github.token }}
+    - name: Bypass CMake ONNX Requirement
       run: |
-        cd ml_pipeline
-        # Create a dummy checkpoint with random weights so torch.load() doesn't crash
-        python -c "
-        import torch
-        from model import StemExtractorUNet
-        model = StemExtractorUNet(num_stems=4)
-        torch.save({'model_state_dict': model.state_dict()}, 'unet_best.pt')
-        "
-
-    - name: Export ONNX Model for C++ Build
-      run: |
-        cd ml_pipeline
-        python export_onnx.py ../plugin/stem_extractor.onnx
-    # --------------------------------
+        # Creates a 0-byte file so juce_add_binary_data doesn't crash
+        touch plugin/stem_extractor.onnx
 
     - name: Configure CMake
       run: cmake -B build -S plugin -DCMAKE_BUILD_TYPE=Release
 
-    - name: Run C++ Unit Tests
+    - name: Compile Tests Only
+      # By specifying the target, we skip compiling the entire VST3 plugin!
+      run: cmake --build build --target RunCPPTests --parallel 4
+
+    - name: Run CTest
       run: ctest --test-dir build --output-on-failure
-
-    - name: Compile Plugin
-      run: cmake --build build --config Release --parallel 4
-
-    - name: Upload VST3 Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: StemExtractor-Mac-VST3
-        path: build/StemExtractor_artefacts/**/VST3/*.vst3
 

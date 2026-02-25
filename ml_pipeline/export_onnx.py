@@ -49,5 +49,6 @@ def export_to_onnx():
     print(f"\n✅ Export successful! The model is securely waiting at: '{onnx_filename}'")
 
 if __name__ == "__main__":
-    export_to_onnx()
+    output_path = "../plugin/stem_extractor.onnx"
+    export_to_onnx(output_path)
 
