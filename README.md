@@ -4,7 +4,7 @@
 
 A real-time, AI-powered audio source separation plugin built with PyTorch, ONNX Runtime, and JUCE. This VST3 plugin dynamically isolates Vocals, Drums, Bass, and Other instruments from a full mix directly inside your DAW.
 
-[![Stem Extractor Demo](https://img.youtube.com/vi/NPQ3ksCOwvk/maxresdefault.jpg)](https://youtu.be/NPQ3ksCOwvk)
+[![Stem Extractor Demo](images/DemoThumbnail.png)](https://youtu.be/NPQ3ksCOwvk)
 
 ## ✨ Features
 * **4-Stem Isolation:** Extract Vocals, Drums, Bass, or "Other" in real-time.
