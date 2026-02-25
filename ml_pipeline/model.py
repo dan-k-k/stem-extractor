@@ -1,4 +1,5 @@
 # ml_pipeline/model.py
+# I only like hard fails. no fallbacks.
 import torch
 import torch.nn as nn
 

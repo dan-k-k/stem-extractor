@@ -1,5 +1,6 @@
 # ml_pipeline/train.py
 import os
+import csv
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -120,6 +121,15 @@ def train():
         avg_val_loss = val_loss / len(val_loader)
         
         print(f"Epoch {epoch+1} Summary | Train Loss: {avg_train_loss:.4f} | Val Loss: {avg_val_loss:.4f}")
+
+        # --- CSV LOGGING ---
+        log_file = "training_log.csv"
+        file_exists = os.path.exists(log_file)
+        with open(log_file, mode='a', newline='') as f:
+            writer = csv.writer(f)
+            if not file_exists:
+                writer.writerow(['epoch', 'train_loss', 'val_loss']) # Write header first time
+            writer.writerow([epoch + 1, f"{avg_train_loss:.4f}", f"{avg_val_loss:.4f}"])
 
         # --- EARLY STOPPING & CHECKPOINTING ---
         if avg_val_loss < best_val_loss:

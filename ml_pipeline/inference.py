@@ -1,29 +1,36 @@
 # ml_pipeline/inference.py
 import os
+import sys
 import torch
 import torchaudio
 import torch.nn.functional as F
 from model import StemExtractorUNet
 
-def infer():
+def infer(mix_path):
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
     print(f"🎸 Running Inference on: {device}")
 
     model = StemExtractorUNet(num_stems=4).to(device)
     
-    weights_path = "unet_epoch_10.pt" 
+    weights_path = "unet_best.pt" 
     if not os.path.exists(weights_path):
         print(f"Could not find {weights_path}. Did training finish?")
         return
         
-    model.load_state_dict(torch.load(weights_path, map_location=device))
+    checkpoint = torch.load(weights_path, map_location=device, weights_only=False)
+    if 'model_state_dict' in checkpoint:
+        model.load_state_dict(checkpoint['model_state_dict'])
+    else:
+        model.load_state_dict(checkpoint)
     model.eval() 
 
     sample_rate = 44100
     chunk_samples = int(3.0 * sample_rate) 
-    mix_path = "musdb18hq/SampleSong/mixture.wav"
     
+    # Load the audio using the dynamic path
+    print(f"Loading test audio from: {mix_path}")
     mix_audio, sr = torchaudio.load(mix_path, num_frames=chunk_samples)
+
     if sr != sample_rate:
         mix_audio = torchaudio.transforms.Resample(sr, sample_rate)(mix_audio)
     
@@ -72,5 +79,6 @@ def infer():
         print(f"Saved: {out_path}")
 
 if __name__ == "__main__":
-    infer()
+    target_file = sys.argv[1]
+    infer(target_file)
 

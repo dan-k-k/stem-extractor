@@ -6,3 +6,4 @@ librosa
 pyyaml
 tqdm
 onnxscript
+matplotlib
