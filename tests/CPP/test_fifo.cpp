@@ -1,5 +1,6 @@
 // tests/CPP/test_fifo.cpp
-#include <JuceHeader.h>
+#include <juce_core/juce_core.h>
+#include <juce_audio_basics/juce_audio_basics.h>
 
 class FifoTest : public juce::UnitTest
 {
