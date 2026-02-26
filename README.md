@@ -45,7 +45,7 @@ The plugin applies STFT to mask for stems.
 - Implemented in PyTorch. The model optimises using L1 Loss.
 
 <p align="center">
-  <img src="images/loss_curve.png" alt="Training vs Validation Loss" width="350">
+  <img src="images/loss_curve.png" alt="Training vs Validation Loss" width="400">
 </p>
 
 **`/plugin` (C++)**
