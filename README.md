@@ -1,8 +1,10 @@
-# Stem Extractor VST3
+## Stem Extractor VST3
 
-# 🎸 Stem Extractor VST3
+A real-time, AI-powered audio source separation plugin built with PyTorch, ONNX Runtime, and JUCE. This plugin dynamically isolates Vocals, Drums, Bass, and Other instruments from a full mix directly inside your DAW.
 
-A real-time, AI-powered audio source separation plugin built with PyTorch, ONNX Runtime, and JUCE. This VST3 plugin dynamically isolates Vocals, Drums, Bass, and Other instruments from a full mix directly inside your DAW.
+<p align="center">
+  <img src="images/PluginUI.png" alt="Stem Extractor UI in Ableton" width="800">
+</p>
 
 <p align="center">
   <a href="https://youtu.be/NPQ3ksCOwvk">
@@ -10,36 +12,59 @@ A real-time, AI-powered audio source separation plugin built with PyTorch, ONNX 
   </a>
 </p>
 
-## ✨ Features
-* **4-Stem Isolation:** Extract Vocals, Drums, Bass, or "Other" in real-time.
-* **DAW Integration:** Reports AI inference latency to the DAW (like Ableton Live) for perfect Automatic Delay Compensation (ADC).
-* **Cross-Platform C++:** Built with the JUCE framework and CMake.
-* **Embedded AI:** The PyTorch model is compiled directly into the VST3 binary—no external model files required.
+### Install (macOS)
 
-## 🧠 The Machine Learning Pipeline (`/ml_pipeline`)
-The core extraction model is a custom **U-Net Convolutional Neural Network** trained from scratch on the MUSDB18-HQ dataset.
+1. Go to the Releases page and download the latest StemExtractor.pkg file.
+2. Because this is an open-source tool and not signed via the Apple App Store, double-clicking the installer will show an "Unverified Developer" warning. To bypass this:
+   - Hold the Control key and click on the .pkg file.
+   - Select Open from the dropdown menu.
+   - Click Open again on the new prompt to run the installer safely.
 
-* **Architecture:** 5-layer Encoder/Decoder U-Net operating on complex STFT spectrograms.
-* **Training:** Implemented in PyTorch. The model processes audio in precise frame chunks (perfectly divisible by 32 to match the U-Net bottleneck) and optimizes using L1 Loss.
-* **Export:** The trained `.pt` weights are exported to a static `.onnx` graph with dynamic time axes, allowing the C++ backend to process sliding windows of audio.
+3. Follow the installation prompts. The VST3 will install into your system plug-ins folder and the AI weights in your Application Support folder.
+4. Open your DAW (Ableton, Logic, FL Studio, etc.) and rescan plugins.
 
-## ⚡ The C++ DSP Architecture (`/plugin`)
-Running deep learning inference on a DAW's audio thread will cause instant dropouts. This plugin solves that using a multithreaded architecture:
+### Features and Use
 
-1. **Lock-Free FIFOs:** Incoming audio is written to a ring buffer on the high-priority audio thread.
-2. **Background Inference Thread:** A secondary JUCE Thread wakes up, pulls frames from the FIFO, runs the ONNX inference, applies the output masks to the complex STFT, and reconstructs the audio via Inverse-FFT.
-3. **Latency Compensation:** The plugin precisely calculates its buffer requirements and reports the latency to the DAW, ensuring the isolated stems remain perfectly phase-aligned with the rest of the project.
+- Extract Vocals, Drums, Bass, or "Other" in real-time.
+  - The plugin has a 5 second latency; you will be able to freeze and flatten tracks with the selected stem and remove the plugin from the effects rack to remove the latency.
+- Calculates AI inference buffer requirements and reports exact latency to the DAW for phase alignment.
+- Built with the JUCE framework.
+- The ONNX Runtime is bundled directly inside the .vst3 package.
 
-## 🛠️ Building from Source
+### `/ml_pipeline` (Python)
+#### U-Net Convolutional Neural Network trained on the MUSDB18-HQ dataset
 
-### Prerequisites
-* CMake (3.15+)
-* Python 3.11+ (for training/exporting the ONNX model)
-* A C++ compiler (Clang/Xcode on macOS, MSVC on Windows)
+- 5-layer Encoder/Decoder U-Net operating on STFT spectrograms.
+- Implemented in PyTorch. The model optimises using L1 Loss.
 
-### 1. Export the Model
-First, you must generate the ONNX file so JUCE can bake it into the binary:
-```bash
+### `/plugin` (C++)
+
+- Incoming audio is written to a ring buffer on the audio thread.
+- A secondary JUCE thread pulls frames from the FIFO, runs the ONNX inference, applies the output masks to the complex STFT, and reconstructs the audio via Inverse-FFT.
+
+### For Devs
+
+- CMake (3.15+)
+- Python 3.11+ (for training/exporting the ONNX model)
+- macOS with Xcode Command Line Tools installed
+
+#### 1. Export the Model
+
+```Python
 cd ml_pipeline
-# Ensure you have your unet_best.pt in this folder
-python export_onnx.py ../plugin/stem_extractor.onnx
+python export_onnx.py
+# Move the resulting stem_extractor.onnx file to /Library/Application Support/StemExtractor/stem_extractor.onnx
+```
+
+#### 2. Build the C++ Plugin
+
+```Python
+# Configure the build
+cmake -B build -S plugin -DCMAKE_BUILD_TYPE=Release
+
+# Compile
+cmake --build build --parallel 4
+
+# The .vst3 will be sitting in `build`
+```
+
