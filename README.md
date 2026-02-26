@@ -24,9 +24,9 @@ The plugin applies STFT to mask for stems.
 
 ### Tech Stack
 
-**Machine Learning Pipeline:** Python 3.11, PyTorch, Torchaudio, Librosa.
+**ML:** Python 3.11, PyTorch, Torchaudio, Librosa.
 
-**Real-Time Audio DSP:** C++17, JUCE Framework, ONNX Runtime.
+**Audio DSP:** C++17, JUCE Framework, ONNX Runtime.
 
 **Build & Deployment:** CMake, macOS `pkgbuild` (Whitebox).
 
