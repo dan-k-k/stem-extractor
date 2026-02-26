@@ -17,15 +17,6 @@ juce_add_plugin(StemExtractor
     PRODUCT_NAME "Stem Extractor"
 )
 
-# This will take the onnx file and generate BinaryData.cpp/h
-juce_add_binary_data(StemExtractor_BinaryData
-    HEADER_NAME "BinaryData.h"
-    NAMESPACE BinaryData
-    # The file path is relative to the current CMakeLists.txt
-    SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/stem_extractor.onnx
-)
-
 juce_generate_juce_header(StemExtractor)
 
 target_sources(StemExtractor PRIVATE
@@ -36,7 +27,6 @@ target_sources(StemExtractor PRIVATE
 target_link_libraries(StemExtractor PRIVATE
     juce::juce_audio_utils
     juce::juce_dsp
-    StemExtractor_BinaryData 
     ${CMAKE_CURRENT_SOURCE_DIR}/onnxruntime/lib/libonnxruntime.dylib
 )
 

@@ -22,17 +22,21 @@ StemExtractorProcessor::StemExtractorProcessor()
     sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL);
 
     try {
-        // Check if the binary data was generated successfully
-        if (BinaryData::stem_extractor_onnxSize > 0) {
-            onnxSession = std::make_unique<Ort::Session>(
-                onnxEnv, 
-                BinaryData::stem_extractor_onnx, 
-                BinaryData::stem_extractor_onnxSize, 
-                sessionOptions
-            );
-            juce::Logger::writeToLog("✅ AI Model Loaded Successfully from BinaryData!");
+        // 1. Grab the absolute path to this exact .cpp file at compile time
+        juce::File sourceFile(__FILE__); 
+        
+        // 2. Walk up from Source/PluginProcessor.cpp -> Source/ -> plugin/ -> stem_extractor.onnx
+        juce::File onnxFile = sourceFile.getParentDirectory().getParentDirectory().getChildFile("stem_extractor.onnx");
+        
+        juce::String modelPathStr = onnxFile.getFullPathName();
+        
+        if (onnxFile.existsAsFile()) {
+            // Mac uses standard char strings for ONNX paths
+            const char* modelPath = modelPathStr.toRawUTF8();
+            onnxSession = std::make_unique<Ort::Session>(onnxEnv, modelPath, sessionOptions);
+            juce::Logger::writeToLog("✅ AI Model Loaded Successfully from: " + modelPathStr);
         } else {
-            juce::Logger::writeToLog("❌ Critical Error: ONNX Model not found in BinaryData.");
+            juce::Logger::writeToLog("❌ Critical Error: ONNX Model not found at " + modelPathStr);
         }
     } catch (const Ort::Exception& e) {
         juce::Logger::writeToLog("❌ ONNX Load Error: " + juce::String(e.what()));
@@ -176,6 +180,12 @@ void StemExtractorProcessor::processFFTFrame()
 // THE BACKGROUND THREAD
 void StemExtractorProcessor::run()
 {
+    // ADD THIS SAFETY CHECK FIRST!
+    if (onnxSession == nullptr) {
+        juce::Logger::writeToLog("❌ CRITICAL: ONNX Session is null! Skipping inference.");
+        return; 
+    }
+
     Ort::MemoryInfo memoryInfo = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
     std::vector<int64_t> inputShape = {1, 2, 512, aiTimeFrames};
     Ort::Value inputTensor = Ort::Value::CreateTensor<float>(

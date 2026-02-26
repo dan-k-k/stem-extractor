@@ -23,8 +23,10 @@ plugin/onnxruntime/lib/*
 
 # C++ / JUCE
 plugin/build/
+build/
 *.dylib
 *.dll
 *.vst3
 *.component
 
+*.asd

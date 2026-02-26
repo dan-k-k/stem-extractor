@@ -2,6 +2,7 @@
 import os
 import torch
 from model import StemExtractorUNet
+import onnx
 
 def export_to_onnx():
     print("Initializing PyTorch Model...")
@@ -22,18 +23,15 @@ def export_to_onnx():
         model.load_state_dict(checkpoint)
 
     model.eval()
-    dummy_input = torch.randn(1, 2, 512, 128)
     
-    dynamic_axes = {
-        'input_spectrogram': {3: 'time_frames'},
-        'output_masks': {4: 'time_frames'}
-    }
+    # --- UPDATED: Match the C++ aiTimeFrames exactly (512) ---
+    # Shape: (Batch=1, Channels=2, FreqBins=512, TimeFrames=512)
+    dummy_input = torch.randn(1, 2, 512, 512)
 
-    shared_dir = "/Users/Shared/StemExtractor"
-    os.makedirs(shared_dir, exist_ok=True) 
-    onnx_filename = os.path.join(shared_dir, "stem_extractor.onnx")
+    onnx_filename = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "plugin", "stem_extractor.onnx"))
     print(f"Exporting to {onnx_filename}...")
     
+    # --- UPDATED: Removed dynamic_shapes entirely for a static, optimized graph ---
     torch.onnx.export(
         model, 
         dummy_input, 
@@ -42,13 +40,27 @@ def export_to_onnx():
         opset_version=17,
         do_constant_folding=True,
         input_names=['input_spectrogram'],
-        output_names=['output_masks'],
-        dynamic_axes=dynamic_axes
+        output_names=['output_masks']
     )
 
-    print(f"\n✅ Export successful! The model is securely waiting at: '{onnx_filename}'")
+    print(f"\nConsolidating model into a single file...")
+    
+    onnx_model = onnx.load(onnx_filename)
+    
+    onnx.save_model(
+        onnx_model, 
+        onnx_filename, 
+        save_as_external_data=False, 
+        all_tensors_to_one_file=True
+    )
+    
+    data_filename = onnx_filename + ".data"
+    if os.path.exists(data_filename):
+        os.remove(data_filename)
+        print("🗑️ Cleaned up orphaned external data file.")
+        
+    print(f"✅ Export successful! The completely self-contained model is at: '{onnx_filename}'")
 
 if __name__ == "__main__":
-    output_path = "../plugin/stem_extractor.onnx"
-    export_to_onnx(output_path)
+    export_to_onnx()
 
