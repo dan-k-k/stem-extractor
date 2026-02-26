@@ -176,7 +176,7 @@ void StemExtractorProcessor::processFFTFrame()
 void StemExtractorProcessor::run()
 {
     if (onnxSession == nullptr) {
-        juce::Logger::writeToLog("ONNX Session is null! Skipping inference.");
+        juce::Logger::writeToLog("ONNX Session is null. Skipping inference.");
         return; 
     }
 

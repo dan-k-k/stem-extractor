@@ -128,7 +128,7 @@ def train():
             writer.writerow([epoch + 1, f"{avg_train_loss:.4f}", f"{avg_val_loss:.4f}"])
 
         if avg_val_loss < best_val_loss:
-            print(f"⭐ Validation loss improved from {best_val_loss:.4f} to {avg_val_loss:.4f}. Saving checkpoint!")
+            print(f"Validation loss improved from {best_val_loss:.4f} to {avg_val_loss:.4f}. Saving checkpoint!")
             best_val_loss = avg_val_loss
             epochs_no_improve = 0  # Reset patience counter
             
