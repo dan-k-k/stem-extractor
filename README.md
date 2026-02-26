@@ -1,6 +1,6 @@
 ## Stem Extractor VST3
 
-A real-time, AI-powered audio source separation plugin built with PyTorch, ONNX Runtime, and JUCE. This plugin dynamically isolates Vocals, Drums, Bass, and Other instruments from a full mix directly inside your DAW. **Currently installs only on MacOS**.
+A real-time, AI-powered audio source separation plugin built with PyTorch, ONNX Runtime, and JUCE. This plugin dynamically isolates Vocals, Drums, Bass, and Other instruments from a full mix directly inside your DAW. **Currently installs only on macOS**.
 
 __Plugin Stem Outputs Demo (after freezing & flattening)__
 
