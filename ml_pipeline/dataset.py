@@ -15,7 +15,7 @@ class MUSDB18Dataset(Dataset):
         
         self.chunk_samples = int(chunk_duration * sample_rate)
 
-        # Look inside the specific split folder (train or test)
+        # Train or test
         self.song_folders = [os.path.join(self.split_dir, f) for f in os.listdir(self.split_dir) 
                              if os.path.isdir(os.path.join(self.split_dir, f))]
 
@@ -29,7 +29,6 @@ class MUSDB18Dataset(Dataset):
         # Random song from the dataset
         song_path = random.choice(self.song_folders)
 
-        # Total length of the song
         mix_path = os.path.join(song_path, "mixture.wav")
         info = sf.info(mix_path)
         total_frames = info.frames
@@ -37,7 +36,6 @@ class MUSDB18Dataset(Dataset):
         start_frame = random.randint(0, total_frames - self.chunk_samples)
         mix_chunk, _ = torchaudio.load(mix_path, frame_offset=start_frame, num_frames=self.chunk_samples)
 
-        # Load the exact same 3-second chunk for all the isolated stems
         stem_chunks = []
         for stem in self.stems:
             stem_path = os.path.join(song_path, f"{stem}.wav")

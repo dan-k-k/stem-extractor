@@ -7,22 +7,15 @@ import soundfile as sf
 import torch.nn.functional as F
 from model import StemExtractorUNet
 
-# ml_pipeline/inference.py
-import os
-import torch
-import torchaudio
-import torch.nn.functional as F
-from model import StemExtractorUNet
-
 def infer():
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
-    print(f"🎸 Running Inference on {device}.")
+    print(f"Running Inference on {device}.")
 
     model = StemExtractorUNet(num_stems=4).to(device)
     weights_path = "unet_best.pt" 
     
     if not os.path.exists(weights_path):
-        raise FileNotFoundError(f"❌ Error: Could not find {weights_path}.")
+        raise FileNotFoundError(f"Error: Could not find {weights_path}.")
         
     checkpoint = torch.load(weights_path, map_location=device, weights_only=False)
     if 'model_state_dict' in checkpoint:
@@ -31,21 +24,22 @@ def infer():
         model.load_state_dict(checkpoint)
     model.eval() 
 
-    # --- UPDATED: Hardcoded target file ---
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    mix_path = os.path.join(script_dir, "musdb18hq", "test", "Arise - Run Run Run", "mixture.wav")
-    
-    if not os.path.exists(mix_path):
-        raise FileNotFoundError(f"❌ Could not find {mix_path}.")
+    test_dir = "musdb18hq/test"
+    if not os.path.exists(test_dir):
+        raise FileNotFoundError(f"Could not find {test_dir}.")
         
-    print(f"🎧 Loading track: {os.path.basename(mix_path)}")
+    song_folders = [os.path.join(test_dir, f) for f in os.listdir(test_dir) if os.path.isdir(os.path.join(test_dir, f))]
+    random_song = random.choice(song_folders)     # Random song
+    mix_path = os.path.join(random_song, "mixture.wav")
+    
+    print(f"Randomly selected: {os.path.basename(random_song)}.")
 
     sample_rate = 44100
     chunk_samples = int(21.0 * sample_rate) 
     
-    # --- UPDATED: Hardcoded start time (28 seconds) ---
-    start_seconds = 28.0
-    start_frame = int(start_seconds * sample_rate)
+    info = sf.info(mix_path)
+    total_frames = info.frames
+    start_frame = random.randint(0, total_frames - chunk_samples)
 
     mix_audio, sr = torchaudio.load(mix_path, frame_offset=start_frame, num_frames=chunk_samples)
     if sr != sample_rate:
@@ -93,7 +87,7 @@ def infer():
         
         out_path = os.path.join(output_dir, f"{stem}.wav")
         torchaudio.save(out_path, stem_audio.cpu(), sample_rate)
-        print(f"✅ Saved: {out_path}")
+        print(f"Saved: {out_path}")
 
 if __name__ == "__main__":
     infer()
