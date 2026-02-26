@@ -22,6 +22,7 @@ The plugin applies STFT to mask for stems.
   <img src="images/spectrogram_comparison.png" alt="Spectrogram Comparison" width="800">
 </p>
 
+
 ### Tech Stack
 
 **ML:** Python 3.11, PyTorch, Torchaudio, Librosa.
