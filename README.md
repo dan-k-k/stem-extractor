@@ -12,6 +12,14 @@ A real-time, AI-powered audio source separation plugin built with PyTorch, ONNX 
   </a>
 </p>
 
+### Spectrogram Comparison
+
+The plugin applies STFT to mask for stems.
+
+<p align="center">
+  <img src="images/spectrogram_comparison.png" alt="Spectrogram Comparison" width="800">
+</p>
+
 ### Install (macOS)
 
 1. Go to the Releases page and download the latest StemExtractor.pkg file.
@@ -36,6 +44,10 @@ A real-time, AI-powered audio source separation plugin built with PyTorch, ONNX 
 - 5-layer Encoder/Decoder U-Net operating on STFT spectrograms.
 - Implemented in PyTorch. The model optimises using L1 Loss.
 
+<p align="center">
+  <img src="images/loss_curve.png" alt="Training vs Validation Loss" width="600">
+</p>
+
 **`/plugin` (C++)**
 
 - Incoming audio is written to a ring buffer on the audio thread.
@@ -43,9 +55,7 @@ A real-time, AI-powered audio source separation plugin built with PyTorch, ONNX 
 
 ### For Devs
 
-- CMake (3.15+)
-- Python 3.11+ (for training/exporting the ONNX model)
-- macOS with Xcode Command Line Tools installed
+*CMake (3.15+), Python 3.11+ (for training/exporting the ONNX model), macOS with Xcode Command Line Tools installed*
 
 #### 1. Export the Model
 
