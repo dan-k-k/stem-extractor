@@ -3,12 +3,12 @@
 A real-time, AI-powered audio source separation plugin built with PyTorch, ONNX Runtime, and JUCE. This plugin dynamically isolates Vocals, Drums, Bass, and Other instruments from a full mix directly inside your DAW.
 
 <p align="center">
-  <img src="images/PluginUI.png" alt="Stem Extractor UI in Ableton" width="800">
+  <img src="images/PluginUI.png" alt="Stem Extractor UI in Ableton" width="500">
 </p>
 
 <p align="center">
   <a href="https://youtu.be/NPQ3ksCOwvk">
-    <img src="images/DemoThumbnail1.png" alt="Stem Extractor Demo" width="400">
+    <img src="images/DemoThumbnail1.png" alt="Stem Extractor Demo" width="500">
   </a>
 </p>
 
