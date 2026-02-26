@@ -3,19 +3,19 @@ import os
 import random
 import torch
 import torchaudio
-import soundfile as sf  # <-- Add this!
+import soundfile as sf 
 import torch.nn.functional as F
 from model import StemExtractorUNet
 
 def infer():
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
-    print(f"🎸 Running Inference on: {device}")
+    print(f"Running Inference on {device}.")
 
     model = StemExtractorUNet(num_stems=4).to(device)
     weights_path = "unet_best.pt" 
     
     if not os.path.exists(weights_path):
-        raise FileNotFoundError(f"❌ CRITICAL ERROR: Could not find {weights_path}.")
+        raise FileNotFoundError(f"Error: Could not find {weights_path}.")
         
     checkpoint = torch.load(weights_path, map_location=device, weights_only=False)
     if 'model_state_dict' in checkpoint:
@@ -24,20 +24,17 @@ def infer():
         model.load_state_dict(checkpoint)
     model.eval() 
 
-    # --- 1. RANDOM SONG SELECTION ---
     test_dir = "musdb18hq/test"
     if not os.path.exists(test_dir):
-        raise FileNotFoundError(f"❌ Could not find {test_dir}")
+        raise FileNotFoundError(f"Could not find {test_dir}.")
         
     song_folders = [os.path.join(test_dir, f) for f in os.listdir(test_dir) if os.path.isdir(os.path.join(test_dir, f))]
-    random_song = random.choice(song_folders)
+    random_song = random.choice(song_folders)     # Random song
     mix_path = os.path.join(random_song, "mixture.wav")
     
-    print(f"🎲 Randomly selected: {os.path.basename(random_song)}")
+    print(f"Randomly selected: {os.path.basename(random_song)}.")
 
-    # --- 2. LOAD AUDIO ---
     sample_rate = 44100
-    # Load 10 seconds just to ensure we have enough audio for 1536 frames
     chunk_samples = int(21.0 * sample_rate) 
     
     info = sf.info(mix_path)
@@ -50,7 +47,7 @@ def infer():
     
     mix_audio = mix_audio.to(device) 
 
-    # --- 3. STFT & PERFECT CROPPING ---
+    # STFT 
     n_fft = 1024
     hop_length = 256
     window = torch.hann_window(n_fft).to(device)
@@ -62,19 +59,14 @@ def infer():
 
     original_freqs = mix_mag.shape[-2]
     
-    # EXACTLY 1536 frames (~20.05 seconds). Perfectly divisible by 32!
     target_time_frames = 3456
     cropped_mag = mix_mag[:, :, :512, :target_time_frames]
     cropped_stft = mix_stft[:, :, :512, :target_time_frames]
 
-    # --- 4. INFERENCE ---
-    print(f"🧠 Passing tensor of shape {cropped_mag.shape} to model...")
     with torch.no_grad(): 
         masks = model(cropped_mag) # Shape: [1, 4, 2, 512, 1536]
 
-    # --- 5. RECONSTRUCTION ---
     pad_freq = original_freqs - 512
-    # Only pad the frequencies back to 513. Time stays at 1536.
     padded_masks = F.pad(masks, (0, 0, 0, pad_freq)) 
 
     # Apply masks to the cropped STFT
@@ -85,11 +77,10 @@ def infer():
     output_dir = "inference_output"
     os.makedirs(output_dir, exist_ok=True)
 
-    print("\n🎧 Exporting Stems...")
+    print("\nExporting Stems...")
     for i, stem in enumerate(stems):
         stem_stft = separated_stft[0, i] 
         
-        # Calculate exactly how many audio samples 1536 frames represents
         out_length = (target_time_frames - 1) * hop_length
         stem_audio = torch.istft(stem_stft, n_fft=n_fft, hop_length=hop_length, 
                                  window=window, length=out_length)

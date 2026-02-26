@@ -8,9 +8,7 @@ on:
     branches: [ "**" ]
 
 jobs:
-  # ==========================================
-  # JOB 1: PYTHON ML LOGIC TESTS
-  # ==========================================
+  # Job 1: Python ML Tests
   test-python:
     name: Python Unit Tests
     runs-on: ubuntu-latest
@@ -32,9 +30,7 @@ jobs:
     - name: Run PyTest
       run: pytest tests/Python/
 
-  # ==========================================
-  # JOB 2: C++ FIFO & BUFFER TESTS
-  # ==========================================
+  # Job 2: C++ FIFO & Buffer Tests
   test-cpp:
     name: C++ Unit Tests
     runs-on: macos-latest
@@ -54,8 +50,7 @@ jobs:
       run: cmake -B build -S plugin -DCMAKE_BUILD_TYPE=Release
 
     - name: Compile Tests Only
-      # By specifying the target, we skip compiling the entire VST3 plugin!
-      run: cmake --build build --target RunCPPTests --parallel 4
+      run: cmake --build build --target RunCPPTests --parallel 4 # --target: skip compiling the entire VST3 plugin
 
     - name: Run CTest
       run: ctest --test-dir build --output-on-failure

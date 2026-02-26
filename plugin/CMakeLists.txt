@@ -42,18 +42,14 @@ target_link_libraries(StemExtractor PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/onnxruntime/lib/libonnxruntime.dylib
 )
 
-# --- Testing ---
 enable_testing()
 
-# Create a test executable
 add_executable(RunCPPTests ../tests/CPP/test_fifo.cpp)
 
-# Link it to JUCE (and whatever else your FIFO relies on)
 target_link_libraries(RunCPPTests PRIVATE 
     juce::juce_audio_utils 
     juce::juce_dsp
 )
 
-# Register it with CTest
 add_test(NAME FIFOTest COMMAND RunCPPTests)
 

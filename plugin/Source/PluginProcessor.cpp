@@ -22,24 +22,22 @@ StemExtractorProcessor::StemExtractorProcessor()
     sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL);
 
     try {
-        // 1. Grab the absolute path to this exact .cpp file at compile time
         juce::File sourceFile(__FILE__); 
         
-        // 2. Walk up from Source/PluginProcessor.cpp -> Source/ -> plugin/ -> stem_extractor.onnx
+        // From Source/PluginProcessor.cpp -> Source/ -> plugin/ -> stem_extractor.onnx, local fix
         juce::File onnxFile = sourceFile.getParentDirectory().getParentDirectory().getChildFile("stem_extractor.onnx");
         
         juce::String modelPathStr = onnxFile.getFullPathName();
         
         if (onnxFile.existsAsFile()) {
-            // Mac uses standard char strings for ONNX paths
             const char* modelPath = modelPathStr.toRawUTF8();
             onnxSession = std::make_unique<Ort::Session>(onnxEnv, modelPath, sessionOptions);
-            juce::Logger::writeToLog("✅ AI Model Loaded Successfully from: " + modelPathStr);
+            juce::Logger::writeToLog("AI Model Loaded Successfully from: " + modelPathStr);
         } else {
-            juce::Logger::writeToLog("❌ Critical Error: ONNX Model not found at " + modelPathStr);
+            juce::Logger::writeToLog("Error: ONNX Model not found at " + modelPathStr);
         }
     } catch (const Ort::Exception& e) {
-        juce::Logger::writeToLog("❌ ONNX Load Error: " + juce::String(e.what()));
+        juce::Logger::writeToLog("ONNX Load Error: " + juce::String(e.what()));
     }
 }
 
@@ -50,7 +48,7 @@ StemExtractorProcessor::~StemExtractorProcessor()
 
 void StemExtractorProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // REPORT LATENCY TO ABLETON
+    // Report latency to Ableton
     int aiLatency = aiTimeFrames * hopSize;
     int computeBuffer = (int)(sampleRate * 2); 
     setLatencySamples (aiLatency + computeBuffer);
@@ -110,14 +108,12 @@ void StemExtractorProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
         float aiL = outputFifo.getSample(0, outputReadIdx);
         float aiR = outputFifo.getSample(1, outputReadIdx);
 
-        // AI output
         outL[i] = aiL;
         outR[i] = aiR;
 
         outputFifo.setSample(0, outputReadIdx, 0.0f);
         outputFifo.setSample(1, outputReadIdx, 0.0f);
 
-        // Advance separated pointers safely
         inputWriteIdx = (inputWriteIdx + 1) % inputFifo.getNumSamples();
         outputReadIdx = (outputReadIdx + 1) % outputFifo.getNumSamples();
 
@@ -177,12 +173,11 @@ void StemExtractorProcessor::processFFTFrame()
     }
 }
 
-// THE BACKGROUND THREAD
+// # Background thread
 void StemExtractorProcessor::run()
 {
-    // ADD THIS SAFETY CHECK FIRST!
     if (onnxSession == nullptr) {
-        juce::Logger::writeToLog("❌ CRITICAL: ONNX Session is null! Skipping inference.");
+        juce::Logger::writeToLog("ONNX Session is null! Skipping inference.");
         return; 
     }
 
@@ -204,7 +199,7 @@ void StemExtractorProcessor::run()
         onnxSession->Run(Ort::RunOptions{nullptr}, inputNames, &inputTensor, 1, outputNames, &outputTensor, 1);
         
         auto endTime = juce::Time::getMillisecondCounterHiRes();
-        juce::Logger::writeToLog("⏱ AI Inference Took: " + juce::String(endTime - startTime) + " ms");
+        juce::Logger::writeToLog("AI Inference Took: " + juce::String(endTime - startTime) + " ms");
 
         int writeStartIdx = threadWriteStartIdx;
 
@@ -222,7 +217,7 @@ void StemExtractorProcessor::run()
                 float maskR = 0.0f;
 
                 if (selectedMode == 0) {
-                    // FULL MIX
+                    // Full mix
                     for (int stem = 0; stem < 4; ++stem) {
                         int idxL = (stem * 2 * 512 * aiTimeFrames) + (0 * 512 * aiTimeFrames) + (bin * aiTimeFrames) + frame;
                         int idxR = (stem * 2 * 512 * aiTimeFrames) + (1 * 512 * aiTimeFrames) + (bin * aiTimeFrames) + frame;
@@ -230,7 +225,7 @@ void StemExtractorProcessor::run()
                         maskR += outputTensorData[idxR];
                     }
                 } else {
-                    // ISOLATED STEM
+                    // Isolated stem
                     int stem = selectedMode - 1; 
                     int idxL = (stem * 2 * 512 * aiTimeFrames) + (0 * 512 * aiTimeFrames) + (bin * aiTimeFrames) + frame;
                     int idxR = (stem * 2 * 512 * aiTimeFrames) + (1 * 512 * aiTimeFrames) + (bin * aiTimeFrames) + frame;
@@ -247,7 +242,7 @@ void StemExtractorProcessor::run()
             threadWorkspaceL[512 * 2] = 0.0f; threadWorkspaceL[512 * 2 + 1] = 0.0f;
             threadWorkspaceR[512 * 2] = 0.0f; threadWorkspaceR[512 * 2 + 1] = 0.0f;
 
-            // back to Audio
+            // Back to audio
             inverseFFT.performRealOnlyInverseTransform (threadWorkspaceL.data());
             inverseFFT.performRealOnlyInverseTransform (threadWorkspaceR.data());
 

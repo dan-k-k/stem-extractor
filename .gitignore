@@ -16,7 +16,7 @@ ml_pipeline/inference_output/
 *.pt
 *.onnx
 ml_pipeline/training_log.csv
-ml_pipeline/plot_loss.py
+ml_pipeline/generate_plots.py
 
 plugin/onnxruntime/lib/*
 !plugin/onnxruntime/lib/libonnxruntime.dylib
@@ -29,4 +29,6 @@ build/
 *.vst3
 *.component
 
+# Ableton
 *.asd
+

@@ -1,5 +1,4 @@
 # ml_pipeline/model.py
-# I only like hard fails. no fallbacks.
 import torch
 import torch.nn as nn
 
@@ -51,7 +50,7 @@ class StemExtractorUNet(nn.Module):
         self.dec2 = UNetDecoderBlock(32, 16, 16)
         
         self.final_up = nn.ConvTranspose2d(16, 16, kernel_size=5, stride=2, padding=2, output_padding=1)
-        # staple the raw input audio to the final layer to preserve maximum detail
+        # Staple the raw input audio to the final layer to preserve maximum detail
         self.final_conv = nn.Conv2d(16 + 2, num_stems * 2, kernel_size=3, padding=1)
         self.sigmoid = nn.Sigmoid()
 

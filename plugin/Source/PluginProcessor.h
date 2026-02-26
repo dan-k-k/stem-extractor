@@ -50,11 +50,10 @@ private:
 
     juce::AudioBuffer<float> inputFifo;  
     juce::AudioBuffer<float> outputFifo; 
-    int inputWriteIdx = 0;  // Tracks where we are writing incoming audio
+    int inputWriteIdx = 0;  // Tracks incoming audio
     int outputReadIdx = 0;  // Tracks where Ableton is reading outgoing audio
     int hopCounter = 0; 
 
-    // AI TENSOR MEMORY
     std::vector<float> inputTensorData;
     std::vector<float> outputTensorData;
 
@@ -64,7 +63,6 @@ private:
     std::vector<float> complexHistoryL;
     std::vector<float> complexHistoryR;
     
-    // THREAD SAFE COPIES
     std::vector<float> inputTensorDataCopy;
     std::vector<float> complexHistoryLCopy;
     std::vector<float> complexHistoryRCopy;

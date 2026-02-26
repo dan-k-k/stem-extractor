@@ -42,7 +42,7 @@ StemExtractorEditor::~StemExtractorEditor() {}
 
 void StemExtractorEditor::paint (juce::Graphics& g)
 {
-    // dark grey background
+    // Dark grey background
     g.fillAll (juce::Colour::fromRGB (30, 30, 30));
 }
 

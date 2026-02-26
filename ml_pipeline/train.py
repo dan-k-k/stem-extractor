@@ -12,7 +12,7 @@ from dataset import MUSDB18Dataset
 from model import StemExtractorUNet
 
 def process_batch(mix_audio, target_stems_audio, model, criterion, spectrogram_transform, device):
-    """Helper function to process a single batch and return the loss."""
+    """Process a single batch and return the loss."""
     mix_audio = mix_audio.to(device)
     target_stems_audio = target_stems_audio.to(device)
 
@@ -22,11 +22,9 @@ def process_batch(mix_audio, target_stems_audio, model, criterion, spectrogram_t
     target_stft = spectrogram_transform(target_stems_audio)
     target_mag = torch.abs(target_stft)
 
-    # Crop the 513 freq bins to 512, and the 517 time frames to 512.
     mix_mag = mix_mag[:, :, :-1, :512]
     target_mag = target_mag[:, :, :, :-1, :512]
 
-    # Predict filter masks and apply to mix
     predicted_masks = model(mix_mag)
     predicted_stems_mag = predicted_masks * mix_mag.unsqueeze(1)
 
@@ -40,16 +38,16 @@ def train():
         device = torch.device("cuda")
     else:
         device = torch.device("cpu")
-    print(f"🎸 Training on device: {device}")
+    print(f"Training on device: {device}.")
 
     batch_size = 4
-    epochs = 50  # Increased for full dataset
+    epochs = 50 
     learning_rate = 1e-4
     data_dir = "./musdb18hq"
 
     print("Loading Datasets...")
     if not os.path.exists(data_dir):
-        raise FileNotFoundError(f"❌ CRITICAL ERROR: Dataset folder '{data_dir}' not found.")
+        raise FileNotFoundError(f"Error: Dataset folder '{data_dir}' not found.")
         
     train_dataset = MUSDB18Dataset(root_dir=data_dir, split="train", chunk_duration=3.0)
     val_dataset = MUSDB18Dataset(root_dir=data_dir, split="test", chunk_duration=3.0)
@@ -67,7 +65,7 @@ def train():
         power=None 
     ).to(device)
 
-    # Setup for Early Stopping & Checkpointing
+    # Early Stopping & Checkpointing
     patience = 10
     start_epoch = 0
     epochs_no_improve = 0
@@ -75,7 +73,7 @@ def train():
     checkpoint_path = "unet_best.pt"
 
     if os.path.exists(checkpoint_path):
-        print(f"🔄 Found checkpoint '{checkpoint_path}'. Loading state...")
+        print(f"Found checkpoint '{checkpoint_path}'. Loading state...")
         checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
         
         model.load_state_dict(checkpoint['model_state_dict'])
@@ -84,13 +82,13 @@ def train():
         best_val_loss = checkpoint['best_val_loss']
         epochs_no_improve = checkpoint['epochs_no_improve']
         
-        print(f"✅ Resuming from Epoch {start_epoch} (Best Val Loss: {best_val_loss:.4f})")
+        print(f"Resuming from Epoch {start_epoch} (Best Val Loss: {best_val_loss:.4f})")
     else:
-        print("✨ No checkpoint found. Starting from scratch.")
+        print("No checkpoint found. Starting from scratch.")
 
     print("Starting training loop...")
     for epoch in range(start_epoch, epochs):
-        # --- TRAINING PASS ---
+        # Training
         model.train()
         train_loss = 0.0
         train_bar = tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs} [Train]")
@@ -106,7 +104,7 @@ def train():
 
         avg_train_loss = train_loss / len(train_loader)
 
-        # --- VALIDATION PASS ---
+        # Validation
         model.eval()
         val_loss = 0.0
         val_bar = tqdm(val_loader, desc=f"Epoch {epoch+1}/{epochs} [Val]")
@@ -121,7 +119,6 @@ def train():
         
         print(f"Epoch {epoch+1} Summary | Train Loss: {avg_train_loss:.4f} | Val Loss: {avg_val_loss:.4f}")
 
-        # --- CSV LOGGING ---
         log_file = "training_log.csv"
         file_exists = os.path.exists(log_file)
         with open(log_file, mode='a', newline='') as f:
@@ -130,13 +127,11 @@ def train():
                 writer.writerow(['epoch', 'train_loss', 'val_loss']) # Write header first time
             writer.writerow([epoch + 1, f"{avg_train_loss:.4f}", f"{avg_val_loss:.4f}"])
 
-        # --- EARLY STOPPING & CHECKPOINTING ---
         if avg_val_loss < best_val_loss:
             print(f"⭐ Validation loss improved from {best_val_loss:.4f} to {avg_val_loss:.4f}. Saving checkpoint!")
             best_val_loss = avg_val_loss
             epochs_no_improve = 0  # Reset patience counter
             
-            # Save the full state dictionary
             checkpoint = {
                 'epoch': epoch,
                 'model_state_dict': model.state_dict(),
@@ -147,11 +142,11 @@ def train():
             torch.save(checkpoint, checkpoint_path)
         else:
             epochs_no_improve += 1
-            print(f"⚠️ No improvement for {epochs_no_improve} epoch(s).")
+            print(f"No improvement for {epochs_no_improve} epoch(s).")
             
             if epochs_no_improve >= patience:
-                print(f"\n🛑 Early stopping triggered after {epoch+1} epochs! The best model is saved as '{checkpoint_path}'.")
-                break # Exit the training loop
+                print(f"\nEarly stopping triggered after {epoch+1} epochs.")
+                break 
 
 if __name__ == "__main__":
     train()

@@ -8,10 +8,7 @@ from torch.utils.data import Dataset
 
 class MUSDB18Dataset(Dataset):
     def __init__(self, root_dir, split="train", chunk_duration=3.0, sample_rate=44100):
-        """
-        root_dir: The path to your musdb18hq directory
-        split: 'train' or 'test'
-        """
+
         self.split_dir = os.path.join(root_dir, split)
         self.chunk_duration = chunk_duration
         self.sample_rate = sample_rate
@@ -25,14 +22,14 @@ class MUSDB18Dataset(Dataset):
         self.stems = ['vocals', 'drums', 'bass', 'other']
 
     def __len__(self):
-        # epoch is 1,000 random 3-second chunks
+        # Epoch is 1,000 random 3-second chunks
         return 5000
 
     def __getitem__(self, idx):
-        # random song from the dataset
+        # Random song from the dataset
         song_path = random.choice(self.song_folders)
 
-        # total length of the song
+        # Total length of the song
         mix_path = os.path.join(song_path, "mixture.wav")
         info = sf.info(mix_path)
         total_frames = info.frames
@@ -40,7 +37,7 @@ class MUSDB18Dataset(Dataset):
         start_frame = random.randint(0, total_frames - self.chunk_samples)
         mix_chunk, _ = torchaudio.load(mix_path, frame_offset=start_frame, num_frames=self.chunk_samples)
 
-        # load the EXACT 3-second chunk for all the isolated stems
+        # Load the exact same 3-second chunk for all the isolated stems
         stem_chunks = []
         for stem in self.stems:
             stem_path = os.path.join(song_path, f"{stem}.wav")
