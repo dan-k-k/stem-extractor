@@ -15,29 +15,28 @@ A real-time, AI-powered audio source separation plugin built with PyTorch, ONNX 
 ### Install (macOS)
 
 1. Go to the Releases page and download the latest StemExtractor.pkg file.
-2. Because this is an open-source tool and not signed via the Apple App Store, double-clicking the installer will show an "Unverified Developer" warning. To bypass this:
-   - Hold the Control key and click on the .pkg file.
-   - Select Open from the dropdown menu.
-   - Click Open again on the new prompt to run the installer safely.
+2. Double-clicking the installer will show an "Unverified Developer" warning. To bypass this:
+   - Hold Control and click on the .pkg.
+   - Select Open from the dropdown.
+   - Click Open again.
 
-3. Follow the installation prompts. The VST3 will install into your system plug-ins folder and the AI weights in your Application Support folder.
-4. Open your DAW (Ableton, Logic, FL Studio, etc.) and rescan plugins.
+3. After installation, the VST3 will appear in `Library/Audio/Plugins/` and the AI weights in `Library/Application Support/StemExtractor/`.
+4. Rescan plugins in your DAW.
 
 ### Features and Use
 
-- Extract Vocals, Drums, Bass, or "Other" in real-time.
-  - The plugin has a 5 second latency; you will be able to freeze and flatten tracks with the selected stem and remove the plugin from the effects rack to remove the latency.
+- Extracts Vocals, Drums, Bass, or "Other" in real-time. The plugin has a 5 second latency; you will be able to freeze and flatten tracks with the selected stem.
 - Calculates AI inference buffer requirements and reports exact latency to the DAW for phase alignment.
 - Built with the JUCE framework.
 - The ONNX Runtime is bundled directly inside the .vst3 package.
 
-### `/ml_pipeline` (Python)
-#### U-Net Convolutional Neural Network trained on the MUSDB18-HQ dataset
+**`/ml_pipeline` (Python)**
+##### U-Net Convolutional Neural Network trained on the MUSDB18-HQ dataset
 
 - 5-layer Encoder/Decoder U-Net operating on STFT spectrograms.
 - Implemented in PyTorch. The model optimises using L1 Loss.
 
-### `/plugin` (C++)
+**`/plugin` (C++)**
 
 - Incoming audio is written to a ring buffer on the audio thread.
 - A secondary JUCE thread pulls frames from the FIFO, runs the ONNX inference, applies the output masks to the complex STFT, and reconstructs the audio via Inverse-FFT.
