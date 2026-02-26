@@ -23,9 +23,9 @@ The plugin applies STFT to mask for stems.
 </p>
 
 
-### Tech Stack
+**Tech Stack**
 
-**ML:** Python 3.11, PyTorch, Torchaudio, Librosa.
+**Machine Learning:** Python 3.11, PyTorch, Torchaudio, Librosa.
 
 **Audio DSP:** C++17, JUCE Framework, ONNX Runtime.
 
