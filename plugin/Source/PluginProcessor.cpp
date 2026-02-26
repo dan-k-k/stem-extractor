@@ -22,18 +22,10 @@ StemExtractorProcessor::StemExtractorProcessor()
     sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL);
 
     try {
-        // 1. Get the /Library folder
         juce::File systemLibraryDir = juce::File::getSpecialLocation(juce::File::commonApplicationDataDirectory);
-        
-        // 2. Append "Application Support" to follow Mac conventions
         juce::File appSupportDir = systemLibraryDir.getChildFile("Application Support");
-
-        // 3. Look for your plugin's folder
         juce::File pluginFolder = appSupportDir.getChildFile("StemExtractor");
-        
-        // 4. Target the ONNX file inside that folder
         juce::File onnxFile = pluginFolder.getChildFile("stem_extractor.onnx");
-        
         juce::String modelPathStr = onnxFile.getFullPathName();
         
         if (onnxFile.existsAsFile()) {

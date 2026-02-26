@@ -24,7 +24,7 @@ StemExtractorEditor::StemExtractorEditor (StemExtractorProcessor& p)
     stemLabel.attachToComponent(&stemDropdown, false);
     addAndMakeVisible(stemLabel);
 
-    // Attach UI to Backend Parameters
+    // UI
     const auto& parameters = audioProcessor.getParameters(); 
     
     // Gain is at index 0
