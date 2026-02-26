@@ -14,7 +14,7 @@ __Plugin Stem Outputs Demo (after freezing & flattening)__
   </a>
 </p>
 
-__Spectrogram Comparison__
+__Spectrogram Comparison__ (librosa)
 
 The plugin applies STFT to mask for stems.
 
@@ -22,23 +22,24 @@ The plugin applies STFT to mask for stems.
   <img src="images/spectrogram_comparison.png" alt="Spectrogram Comparison" width="800">
 </p>
 
+### Tech Stack
+
+**Machine Learning Pipeline:** Python 3.11, PyTorch, Torchaudio, Librosa.
+
+**Real-Time Audio DSP:** C++17, JUCE Framework, ONNX Runtime.
+
+**Build & Deployment:** CMake, macOS `pkgbuild` (Whitebox).
+
 ### Install (macOS)
 
-1. Go to the Releases page and download the latest StemExtractor.pkg file.
+1. Go to the Releases page and download the latest `Stem.Extractor.pkg` file.
 2. Double-clicking the installer will show an "Unverified Developer" warning. To bypass this:
    - Hold Control and click on the .pkg.
    - Select Open from the dropdown.
    - Click Open again.
 
-3. After installation, the VST3 will appear in `Library/Audio/Plugins/` and the AI weights in `Library/Application Support/StemExtractor/`.
-4. Rescan plugins in your DAW.
-
-### Features and Use
-
-- Extracts Vocals, Drums, Bass, or "Other" in real-time. The plugin has a 5 second latency; you will be able to freeze and flatten tracks with the selected stem.
-- Calculates AI inference buffer requirements and reports exact latency to the DAW for phase alignment.
-- Built with the JUCE framework.
-- The ONNX Runtime is bundled directly inside the .vst3 package.
+3. After installation, the VST3 will appear in `Library/Audio/Plugins/` and the AI weights in `Library/Application Support/StemExtractor/` (NOT in ~ Users/yourname/...).
+4. Rescan plugins.
 
 **`/ml_pipeline` (Python)**
 ##### U-Net Convolutional Neural Network trained on the MUSDB18-HQ dataset
