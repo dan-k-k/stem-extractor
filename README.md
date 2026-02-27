@@ -66,7 +66,7 @@ The baseline U-Net achieves a median SI-SDR of 3.5 dB for Vocals and 2.9 dB for 
 
 ### For Devs
 
-*CMake (3.15+), Python 3.11+ (for training/exporting the ONNX model), macOS with Xcode Command Line Tools installed*
+*Requires CMake (3.15+), Python 3.11+ (for training/exporting the ONNX model), macOS with Xcode Command Line Tools*
 
 ##### 1. Export the Model
 
