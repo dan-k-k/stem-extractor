@@ -60,7 +60,7 @@ The plugin applies STFT to mask for stems.
 
 *CMake (3.15+), Python 3.11+ (for training/exporting the ONNX model), macOS with Xcode Command Line Tools installed*
 
-#### 1. Export the Model
+##### 1. Export the Model
 
 ```Python
 cd ml_pipeline
@@ -68,7 +68,7 @@ python export_onnx.py
 # Move the resulting stem_extractor.onnx file to /Library/Application Support/StemExtractor/stem_extractor.onnx
 ```
 
-#### 2. Build the C++ Plugin
+##### 2. Build the C++ Plugin
 
 ```Python
 # Configure the build
