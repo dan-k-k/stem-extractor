@@ -166,12 +166,12 @@ def plot_si_sdr_distributions(all_scores, output_img="si_sdr_boxplot.png"):
     # 0 dB means target and noise are equal volume
     plt.axhline(0, color='black', linestyle='--', linewidth=1.5, alpha=0.7, label='0 dB Baseline')
     
-    plt.title('SI-SDR Score Distribution Across MUSDB18 Test Set', fontsize=14, pad=15)
+    # plt.title('SI-SDR Score Distribution Across MUSDB18 Test Set', fontsize=14, pad=15)
     plt.ylabel('SI-SDR (dB)', fontsize=14)
     plt.xlabel('Extracted Stem', fontsize=14)
     
     plt.grid(axis='y', linestyle='--', alpha=0.5)
-    plt.legend(loc='upper right')
+    plt.legend(loc='lower right')
     plt.tight_layout()
     
     plt.savefig(out_path, dpi=300, bbox_inches='tight')
