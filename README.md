@@ -17,7 +17,7 @@ __Plugin Stem Outputs Demo__
 __Spectrogram Comparison__ (librosa)
 
 <p align="center">
-  <img src="images/spectrogram_comparison.png" alt="Spectrogram Comparison" width="800">
+  <img src="images/spectrogram_comparison1.png" alt="Spectrogram Comparison" width="800">
 </p>
 
 The plugin applies STFT to mask for stems.

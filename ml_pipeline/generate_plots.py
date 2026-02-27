@@ -43,8 +43,9 @@ def plot_training_curve(csv_file="training_log.csv", output_img="loss_curve.png"
     plt.savefig(out_path, dpi=300)
     print(f"Loss curve saved to: '{out_path}'")
 
-def plot_spectrogram_comparisons(mix_name="ZenoSigns10sec.wav", stem_name="vocals.wav", output_img="spectrogram_comparison.png"):
-    mix_path = os.path.join(PROJECT_ROOT, "tests", mix_name)
+def plot_spectrogram_comparisons(mix_name="true_mix.wav", stem_name="vocals.wav", output_img="spectrogram_comparison.png"):
+    
+    mix_path = os.path.join(SCRIPT_DIR, "inference_output", mix_name)
     stem_path = os.path.join(SCRIPT_DIR, "inference_output", stem_name)
     out_path = os.path.join(IMAGES_DIR, output_img)
 
@@ -80,5 +81,4 @@ def plot_spectrogram_comparisons(mix_name="ZenoSigns10sec.wav", stem_name="vocal
 if __name__ == "__main__":
     plot_training_curve()
     plot_spectrogram_comparisons()
-    print("Success.")
 

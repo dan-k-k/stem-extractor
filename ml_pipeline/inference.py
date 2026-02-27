@@ -102,6 +102,9 @@ def infer():
         torchaudio.save(true_out_path, true_audio, sample_rate)
         print(f"Saved Ground Truth: {true_out_path}")
 
+    true_mix_path = os.path.join(output_dir, "true_mix.wav")
+    torchaudio.save(true_mix_path, mix_audio.cpu(), sample_rate)
+
 if __name__ == "__main__":
     infer()
 
