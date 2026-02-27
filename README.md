@@ -51,6 +51,14 @@ The plugin applies STFT to mask for stems.
   <img src="images/loss_curve.png" alt="Training vs Validation Loss" width="400">
 </p>
 
+##### SI-SDR
+
+<p align="center">
+    <img src="images/si_sdr_boxplot.png" alt="SI-SDR Score Distribution" width="400">
+</p>
+
+The baseline U-Net achieves a median SI-SDR of ~3.5 dB for Vocals and ~2.9 dB for Drums. Output stems corresponding to true stems with no signal (~ -inf dB) are not considered, but this there are still extreme negative outliers where the model mistakenly leaks audio into the prediction when there is very subtle true-stem sound, creating a massive logarithmic penalty.
+
 **`/plugin` (C++)**
 
 - Incoming audio is written to a ring buffer on the audio thread.

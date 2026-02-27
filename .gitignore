@@ -16,7 +16,8 @@ ml_pipeline/inference_output/
 *.pt
 *.onnx
 ml_pipeline/training_log.csv
-ml_pipeline/generate_plots.py
+# ml_pipeline/generate_plots.py
+# ml_pipeline/evaluate_test_set.py
 
 plugin/onnxruntime/lib/*
 !plugin/onnxruntime/lib/libonnxruntime.dylib

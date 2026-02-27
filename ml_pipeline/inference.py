@@ -88,6 +88,19 @@ def infer():
         out_path = os.path.join(output_dir, f"{stem}.wav")
         torchaudio.save(out_path, stem_audio.cpu(), sample_rate)
         print(f"Saved: {out_path}")
+    
+    print("\nExporting Ground Truth Stems for evaluation...")
+    for stem in stems:
+        true_stem_path = os.path.join(random_song, f"{stem}.wav")
+        # Exact same time window using the exact same start_frame
+        true_audio, true_sr = torchaudio.load(true_stem_path, frame_offset=start_frame, num_frames=chunk_samples)
+        
+        if true_sr != sample_rate:
+            true_audio = torchaudio.transforms.Resample(true_sr, sample_rate)(true_audio)
+            
+        true_out_path = os.path.join(output_dir, f"true_{stem}.wav")
+        torchaudio.save(true_out_path, true_audio, sample_rate)
+        print(f"Saved Ground Truth: {true_out_path}")
 
 if __name__ == "__main__":
     infer()
