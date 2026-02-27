@@ -16,14 +16,13 @@ __Plugin Stem Outputs Demo (after freezing & flattening)__
 
 __Spectrogram Comparison__ (librosa)
 
-The plugin applies STFT to mask for stems.
-
 <p align="center">
   <img src="images/spectrogram_comparison.png" alt="Spectrogram Comparison" width="800">
 </p>
 
+The plugin applies STFT to mask for stems.
 
-**Tech Stack**
+### Tech Stack
 
 **Machine Learning:** Python 3.11, PyTorch, Torchaudio, Librosa.
 
