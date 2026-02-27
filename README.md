@@ -64,6 +64,14 @@ The baseline U-Net achieves a median SI-SDR of 3.5 dB for Vocals and 2.9 dB for 
 - Incoming audio is written to a ring buffer on the audio thread.
 - A secondary JUCE thread pulls frames from the FIFO, runs the ONNX inference, applies the output masks to the complex STFT, and reconstructs the audio via Inverse-FFT.
 
+##### AI Inference 
+
+<p align="center">
+    <img src="images/AI_inference.png" alt="AI inference timing" width="400">
+</p>
+
+Live DAW terminal output: real-time ONNX CPU inference. Uses lock-free FIFOs to pass the data.
+
 ### For Devs
 
 *Requires CMake (3.15+), Python 3.11+ (for training/exporting the ONNX model), macOS with Xcode Command Line Tools*
