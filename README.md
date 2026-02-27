@@ -51,7 +51,7 @@ The plugin applies STFT to mask for stems.
   <img src="images/loss_curve.png" alt="Training vs Validation Loss" width="400">
 </p>
 
-##### SI-SDR across full MUSDB18 test set
+##### SI-SDR across Full MUSDB18-HQ Test Set
 
 <p align="center">
     <img src="images/si_sdr_boxplot1.png" alt="SI-SDR Score Distribution" width="400">
