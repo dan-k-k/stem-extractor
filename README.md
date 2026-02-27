@@ -67,7 +67,7 @@ The baseline U-Net achieves a median SI-SDR of 3.5 dB for Vocals and 2.9 dB for 
 ##### AI Inference 
 
 <p align="center">
-    <img src="images/AI_inference.png" alt="AI inference timing" width="400">
+    <img src="images/AI_inference.png" alt="AI inference timing" width="800">
 </p>
 
 Live DAW terminal output: real-time ONNX CPU inference. Uses lock-free FIFOs to pass the data.
