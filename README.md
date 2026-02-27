@@ -9,7 +9,7 @@ __Plugin Stem Outputs Demo (after freezing & flattening)__
 </p>
 
 <p align="center">
-  <a href="https://youtu.be/NPQ3ksCOwvk">
+  <a href="https://youtu.be/xYLYWHUjavo">
     <img src="images/DemoThumbnail1.png" alt="Stem Extractor Demo" width="500">
   </a>
 </p>
