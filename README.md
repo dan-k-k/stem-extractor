@@ -57,7 +57,7 @@ The plugin applies STFT to mask for stems.
     <img src="images/si_sdr_boxplot1.png" alt="SI-SDR Score Distribution" width="400">
 </p>
 
-The baseline U-Net achieves a median SI-SDR of 3.5 dB for Vocals and 2.9 dB for Drums. Output stems corresponding to true stems with no signal (< -60dBFS) are not considered, but this there are still extreme negative outliers where the model mistakenly leaks audio into the prediction when there is very subtle true-stem sound, creating a massive logarithmic penalty.
+The baseline U-Net achieves a median SI-SDR of 3.5 dB for Vocals and 2.9 dB for Drums. Output stems corresponding to true stems with no signal (< -60dBFS) are not considered, but there are still extreme negative outliers where the model mistakenly leaks audio into the prediction when there is very subtle true-stem sound.
 
 **`/plugin` (C++)**
 
