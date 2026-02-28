@@ -10,7 +10,6 @@ from model import StemExtractorUNet
 import matplotlib.pyplot as plt
 
 def calculate_si_sdr(reference, estimation):
-    """Calculates the Scale-Invariant Signal-to-Distortion Ratio (SI-SDR)."""
     min_len = min(len(reference), len(estimation))
     ref = reference[:min_len]
     est = estimation[:min_len]
@@ -34,14 +33,14 @@ def calculate_si_sdr(reference, estimation):
 
 def evaluate_full_test_set():
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
-    print(f"Running Full Test Set Evaluation on {device}...")
+    print(f"Running full test set evaluation on {device}...")
 
-    # Load Model
+    # Load model
     model = StemExtractorUNet(num_stems=4).to(device)
     weights_path = "unet_best.pt" 
     
     if not os.path.exists(weights_path):
-        raise FileNotFoundError(f"Error: Could not find {weights_path}.")
+        raise FileNotFoundError(f"Error: could not find {weights_path}.")
         
     checkpoint = torch.load(weights_path, map_location=device, weights_only=False)
     if 'model_state_dict' in checkpoint:
@@ -109,7 +108,7 @@ def evaluate_full_test_set():
             pred_audio = torch.istft(stem_stft, n_fft=n_fft, hop_length=hop_length, window=window, length=out_length)
             pred_audio_np = pred_audio.cpu().numpy().squeeze()
 
-            # Ground Truth
+            # Ground truth
             true_path = os.path.join(song_path, f"{stem}.wav")
             true_audio, true_sr = torchaudio.load(true_path, frame_offset=start_frame, num_frames=chunk_samples)
             if true_sr != sample_rate:
@@ -126,7 +125,7 @@ def evaluate_full_test_set():
             score = calculate_si_sdr(true_audio_np, pred_audio_np)
             all_scores[stem].append(score)
 
-    print(f" MACRO-AVERAGE SI-SDR (Across {len(song_folders)} test songs)")
+    print(f" Macro avg SI-SDR (Across {len(song_folders)} test songs)")
     print(f" {'Stem':<10} | {'Mean (dB)':<10} | {'Median (dB)':<10}")
     
     for stem in stems:
@@ -138,9 +137,6 @@ def evaluate_full_test_set():
     plot_si_sdr_distributions(all_scores)
 
 def plot_si_sdr_distributions(all_scores, output_img="si_sdr_boxplot.png"):
-    """
-    Generates a professional box plot of the SI-SDR scores across the test set.
-    """
     import os
     script_dir = os.path.dirname(os.path.abspath(__file__))
     project_root = os.path.abspath(os.path.join(script_dir, ".."))

@@ -9,13 +9,13 @@ from model import StemExtractorUNet
 
 def infer():
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
-    print(f"Running Inference on {device}.")
+    print(f"Running inference on {device}.")
 
     model = StemExtractorUNet(num_stems=4).to(device)
     weights_path = "unet_best.pt" 
     
     if not os.path.exists(weights_path):
-        raise FileNotFoundError(f"Error: Could not find {weights_path}.")
+        raise FileNotFoundError(f"Error: could not find {weights_path}.")
         
     checkpoint = torch.load(weights_path, map_location=device, weights_only=False)
     if 'model_state_dict' in checkpoint:
@@ -77,7 +77,7 @@ def infer():
     output_dir = "inference_output"
     os.makedirs(output_dir, exist_ok=True)
 
-    print("\nExporting Stems...")
+    print("\nExporting stems...")
     for i, stem in enumerate(stems):
         stem_stft = separated_stft[0, i] 
         
@@ -89,7 +89,7 @@ def infer():
         torchaudio.save(out_path, stem_audio.cpu(), sample_rate)
         print(f"Saved: {out_path}")
     
-    print("\nExporting Ground Truth Stems for evaluation...")
+    print("\nExporting ground truth stems for evaluation...")
     for stem in stems:
         true_stem_path = os.path.join(random_song, f"{stem}.wav")
         # Exact same time window using the exact same start_frame
@@ -100,7 +100,7 @@ def infer():
             
         true_out_path = os.path.join(output_dir, f"true_{stem}.wav")
         torchaudio.save(true_out_path, true_audio, sample_rate)
-        print(f"Saved Ground Truth: {true_out_path}")
+        print(f"Saved ground truth: {true_out_path}")
 
     true_mix_path = os.path.join(output_dir, "true_mix.wav")
     torchaudio.save(true_mix_path, mix_audio.cpu(), sample_rate)

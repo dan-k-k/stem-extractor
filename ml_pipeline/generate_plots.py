@@ -63,7 +63,7 @@ def plot_spectrogram_comparisons(mix_name="true_mix.wav", stem_name="vocals.wav"
 
     # Plot Mix
     img1 = librosa.display.specshow(D_mix, y_axis='log', x_axis='time', sr=sr, ax=ax[0], cmap='magma')
-    ax[0].set_title('Original Mix', fontsize=14)
+    ax[0].set_title('Original mix', fontsize=14)
     ax[0].set_xlabel('Time (s)', fontsize=12)
     ax[0].set_ylabel('Frequency (Hz)', fontsize=12)
 

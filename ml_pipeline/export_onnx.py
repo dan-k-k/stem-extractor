@@ -5,13 +5,13 @@ from model import StemExtractorUNet
 import onnx
 
 def export_to_onnx():
-    print("Initialising PyTorch Model...")
+    print("Initialising PyTorch model...")
     model = StemExtractorUNet(num_stems=4)
     
     weights_path = "unet_best.pt" 
     
     if not os.path.exists(weights_path):
-        raise FileNotFoundError(f"Error: Trained weights '{weights_path}' not found. Run train.py first.")
+        raise FileNotFoundError(f"Error: trained weights '{weights_path}' not found. Run train.py first.")
 
     print(f"Loading trained weights from {weights_path}...")
     

@@ -9,7 +9,7 @@ public:
 
     void runTest() override
     {
-        beginTest ("Circular Buffer Wraparound Logic");
+        beginTest ("Circular buffer wraparound logic");
 
         juce::AudioBuffer<float> testFifo (2, 512);
         int writeIdx = 510; // Near the end of the buffer

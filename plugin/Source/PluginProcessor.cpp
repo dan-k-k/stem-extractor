@@ -31,12 +31,12 @@ StemExtractorProcessor::StemExtractorProcessor()
         if (onnxFile.existsAsFile()) {
             const char* modelPath = modelPathStr.toRawUTF8();
             onnxSession = std::make_unique<Ort::Session>(onnxEnv, modelPath, sessionOptions);
-            juce::Logger::writeToLog("AI Model Loaded Successfully from: " + modelPathStr);
+            juce::Logger::writeToLog("AI model loaded successfully from: " + modelPathStr);
         } else {
-            juce::Logger::writeToLog("Error: ONNX Model not found at " + modelPathStr);
+            juce::Logger::writeToLog("Error: ONNX model not found at " + modelPathStr);
         }
     } catch (const Ort::Exception& e) {
-        juce::Logger::writeToLog("ONNX Load Error: " + juce::String(e.what()));
+        juce::Logger::writeToLog("ONNX load Error: " + juce::String(e.what()));
     }
 }
 

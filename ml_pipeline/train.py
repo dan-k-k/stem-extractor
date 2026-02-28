@@ -12,7 +12,6 @@ from dataset import MUSDB18Dataset
 from model import StemExtractorUNet
 
 def process_batch(mix_audio, target_stems_audio, model, criterion, spectrogram_transform, device):
-    """Process a single batch and return the loss."""
     mix_audio = mix_audio.to(device)
     target_stems_audio = target_stems_audio.to(device)
 
@@ -45,9 +44,9 @@ def train():
     learning_rate = 1e-4
     data_dir = "./musdb18hq"
 
-    print("Loading Datasets...")
+    print("Loading datasets...")
     if not os.path.exists(data_dir):
-        raise FileNotFoundError(f"Error: Dataset folder '{data_dir}' not found.")
+        raise FileNotFoundError(f"Error: dataset folder '{data_dir}' not found.")
         
     train_dataset = MUSDB18Dataset(root_dir=data_dir, split="train", chunk_duration=3.0)
     val_dataset = MUSDB18Dataset(root_dir=data_dir, split="test", chunk_duration=3.0)
@@ -82,7 +81,7 @@ def train():
         best_val_loss = checkpoint['best_val_loss']
         epochs_no_improve = checkpoint['epochs_no_improve']
         
-        print(f"Resuming from Epoch {start_epoch} (Best Val Loss: {best_val_loss:.4f})")
+        print(f"Resuming from epoch {start_epoch} (Best val loss: {best_val_loss:.4f})")
     else:
         print("No checkpoint found. Starting from scratch.")
 
@@ -117,7 +116,7 @@ def train():
 
         avg_val_loss = val_loss / len(val_loader)
         
-        print(f"Epoch {epoch+1} Summary | Train Loss: {avg_train_loss:.4f} | Val Loss: {avg_val_loss:.4f}")
+        print(f"Epoch {epoch+1} summary | Train loss: {avg_train_loss:.4f} | Val loss: {avg_val_loss:.4f}")
 
         log_file = "training_log.csv"
         file_exists = os.path.exists(log_file)
@@ -128,7 +127,7 @@ def train():
             writer.writerow([epoch + 1, f"{avg_train_loss:.4f}", f"{avg_val_loss:.4f}"])
 
         if avg_val_loss < best_val_loss:
-            print(f"Validation loss improved from {best_val_loss:.4f} to {avg_val_loss:.4f}. Saving checkpoint!")
+            print(f"Validation loss improved from {best_val_loss:.4f} to {avg_val_loss:.4f}. Saving checkpoint.")
             best_val_loss = avg_val_loss
             epochs_no_improve = 0  # Reset patience counter
             
