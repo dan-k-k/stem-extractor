@@ -1,4 +1,4 @@
-# ml_pipeline/generate_plots.py
+# ml_pipeline/plots.py
 import os
 import csv
 import numpy as np
@@ -61,19 +61,17 @@ def plot_spectrogram_comparisons(mix_name="true_mix.wav", stem_name="vocals.wav"
 
     fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(10, 4), sharey=True)
 
-    # Plot Mix
+    # Plot mix
     img1 = librosa.display.specshow(D_mix, y_axis='log', x_axis='time', sr=sr, ax=ax[0], cmap='magma')
     ax[0].set_title('Original mix', fontsize=14)
     ax[0].set_xlabel('Time (s)', fontsize=12)
     ax[0].set_ylabel('Frequency (Hz)', fontsize=12)
 
-    # Plot Isolated Stem
+    # Plot isolated stem
     img2 = librosa.display.specshow(D_stem, y_axis='log', x_axis='time', sr=sr, ax=ax[1], cmap='magma')
     ax[1].set_title(f'Extracted {stem_name.replace(".wav", "").capitalize()}', fontsize=14)
     ax[1].set_xlabel('Time (s)', fontsize=12)
-
     # fig.colorbar(img1, ax=ax, format="%+2.0f dB", label="Amplitude (dB)", pad=0.05)
-    
     plt.tight_layout()
     plt.savefig(out_path, dpi=300, bbox_inches='tight')
     print(f"Spectrogram comparison saved to: '{out_path}'")

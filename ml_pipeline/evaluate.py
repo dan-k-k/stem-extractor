@@ -1,4 +1,4 @@
-# ml_pipeline/evaluate_test_set.py
+# ml_pipeline/evaluate.py
 import os
 import torch
 import torchaudio
