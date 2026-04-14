@@ -24,6 +24,7 @@ StemExtractorProcessor::StemExtractorProcessor()
     try {
         juce::File systemLibraryDir = juce::File::getSpecialLocation(juce::File::commonApplicationDataDirectory);
         juce::File appSupportDir = systemLibraryDir.getChildFile("Application Support");
+        juce::File manufacturerFolder = appSupportDir.getChildFile("DanK");
         juce::File pluginFolder = appSupportDir.getChildFile("StemExtractor");
         juce::File onnxFile = pluginFolder.getChildFile("stem_extractor.onnx");
         juce::String modelPathStr = onnxFile.getFullPathName();

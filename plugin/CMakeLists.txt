@@ -11,7 +11,7 @@ juce_add_plugin(StemExtractor
     NEEDS_MIDI_OUTPUT FALSE
     IS_MIDI_EFFECT FALSE
     COPY_PLUGIN_AFTER_BUILD FALSE #
-    PLUGIN_MANUFACTURER_CODE Dank
+    PLUGIN_MANUFACTURER_CODE "DanK"
     PLUGIN_CODE Sstm
     FORMATS VST3 AU Standalone
     PRODUCT_NAME "Stem Extractor"
@@ -44,10 +44,8 @@ set_target_properties(StemExtractor_VST3 PROPERTIES
 )
 
 add_custom_command(TARGET StemExtractor_VST3 POST_BUILD
-    # Frameworks directory inside the built .vst3 bundle
     COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:StemExtractor_VST3>/../Frameworks"
     
-    # Force ONNX to have the exact versioned name dyld expects
     COMMAND ${CMAKE_COMMAND} -E copy
         "${CMAKE_CURRENT_SOURCE_DIR}/onnxruntime/lib/libonnxruntime.dylib"
         "$<TARGET_FILE_DIR:StemExtractor_VST3>/../Frameworks/libonnxruntime.1.24.2.dylib"
@@ -55,7 +53,6 @@ add_custom_command(TARGET StemExtractor_VST3 POST_BUILD
     # Strip Apple quarantine flags
     COMMAND xattr -rc "$<TARGET_FILE_DIR:StemExtractor_VST3>/../.."
     
-    # Ad-hoc sign 
     COMMAND codesign --force --deep --sign - "$<TARGET_FILE_DIR:StemExtractor_VST3>/../.."
 
     COMMAND ${CMAKE_COMMAND} -E remove_directory "$ENV{HOME}/Library/Audio/Plug-Ins/VST3/Stem Extractor.vst3"
